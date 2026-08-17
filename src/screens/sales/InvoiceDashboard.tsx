@@ -106,7 +106,8 @@ export default function InvoiceDashboard() {
   }).length
 
   return (
-    <div className="relative min-h-screen flex flex-col px-6 py-6 pb-24 max-w-sm mx-auto overflow-x-hidden">
+    <div className="h-screen flex flex-col max-w-sm mx-auto overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-6 py-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">tractbook</h1>
         <div className="flex items-center gap-3">
@@ -243,9 +244,11 @@ export default function InvoiceDashboard() {
           })}
         </div>
       )}
+      </div>
       <BottomNav active="sales" />
     </div>
   )
 }
+
 
 

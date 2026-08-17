@@ -67,7 +67,8 @@ export default function CustomersList() {
   )
 
   return (
-    <div className="min-h-screen flex flex-col px-6 py-6 max-w-sm mx-auto">
+    <div className="h-screen flex flex-col max-w-sm mx-auto overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-6 py-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">tractbook</h1>
         <div className="w-8 h-8 rounded-full bg-blue-700 text-white text-xs font-semibold flex items-center justify-center">
@@ -153,10 +154,13 @@ export default function CustomersList() {
           ))}
         </div>
       )}
+      </div>
       <BottomNav active="sales" />
     </div>
   )
 }
+
+
 
 
 

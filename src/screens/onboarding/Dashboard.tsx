@@ -21,8 +21,8 @@ export default function Dashboard() {
     ""
 
   return (
-    <div className="relative min-h-screen bg-white flex flex-col max-w-sm mx-auto">
-      <div className="flex-1 px-5 pt-6 pb-24">
+    <div className="h-screen bg-white flex flex-col max-w-sm mx-auto overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
@@ -104,5 +104,6 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
