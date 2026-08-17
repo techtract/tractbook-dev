@@ -29,6 +29,10 @@ import CreateInvoice from "./screens/sales/CreateInvoice";
 import InvoiceDetail from "./screens/sales/InvoiceDetail";
 import SendInvoice from "./screens/sales/SendInvoice";
 import PrintInvoice from "./screens/sales/PrintInvoice";
+import ScanReceipt from "./screens/ocr/ScanReceipt";
+import OCRDocuments from "./screens/ocr/OCRDocuments";
+import OCRInsights from "./screens/ocr/OCRInsights";
+import ReviewReceipt from "./screens/ocr/ReviewReceipt";
 import SendEstimate from "./screens/sales/SendEstimate";
 import PrintEstimate from "./screens/sales/PrintEstimate";
 import RecordPayment from "./screens/sales/RecordPayment";
@@ -74,6 +78,10 @@ function App() {
         <Route path="/invoices/:id" element={<InvoiceDetail />} />
         <Route path="/invoices/:id/send" element={<SendInvoice />} />
         <Route path="/invoices/:id/print" element={<PrintInvoice />} />
+        <Route path="/ocr" element={<OCRDocuments />} />
+        <Route path="/ocr/insights" element={<OCRInsights />} />
+        <Route path="/ocr/scan" element={<ScanReceipt />} />
+        <Route path="/ocr/review" element={<ReviewReceipt />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -82,3 +90,7 @@ function App() {
 }
 
 export default App;
+
+
+
+

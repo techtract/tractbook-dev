@@ -62,7 +62,7 @@ export default function Dashboard() {
             <span className="text-blue-700 font-semibold text-sm">Create new...</span>
           </button>
           <button
-            onClick={() => navigate("/coming-soon/scan")}
+            onClick={() => navigate("/ocr/scan")}
             className="bg-purple-50 rounded-xl py-5 flex flex-col items-center gap-2"
           >
             <span className="text-purple-600 text-2xl">📷</span>
@@ -104,6 +104,7 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
 

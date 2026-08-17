@@ -12,6 +12,13 @@ function parseAmount(s?: string): number {
   return isNaN(n) ? 0 : n
 }
 
+function parseDateToISO(s?: string): string | null {
+  if (!s) return null
+  const d = new Date(s)
+  if (isNaN(d.getTime())) return null
+  return d.toISOString().slice(0, 10)
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
@@ -30,6 +37,14 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
+
+    const businessId = storagePath.split("/")[0]
+    const { data: business } = await supabase
+      .from("businesses")
+      .select("name")
+      .eq("id", businessId)
+      .maybeSingle()
+    const businessName = business?.name || null
 
     const { data: fileBlob, error: downloadError } = await supabase.storage
       .from("receipts")
@@ -57,7 +72,7 @@ Deno.serve(async (req) => {
     )
 
     const summaryFields: Record<string, { value: string; confidence: number }> = {}
-    const lineItems: { item_name: string; quantity: number; unit_price: number; line_total: number }[] = []
+    const lineItems: { item_name: string; quantity: number; unit_price: number; line_total: number; tax_rate: number }[] = []
 
     const expenseDoc = textractResult.ExpenseDocuments?.[0]
     if (expenseDoc) {
@@ -83,19 +98,37 @@ Deno.serve(async (req) => {
             quantity: parseAmount(fields["QUANTITY"]) || 1,
             unit_price: parseAmount(fields["UNIT_PRICE"] || fields["PRICE"]),
             line_total: parseAmount(fields["PRICE"] || fields["AMOUNT"]),
+            tax_rate: parseAmount(fields["TAX"]),
           })
         }
       }
     }
 
+    const rawSubtotal = parseAmount(summaryFields["SUBTOTAL"]?.value)
+    const rawTax = parseAmount(summaryFields["TAX"]?.value)
+    const rawTotal = parseAmount(summaryFields["TOTAL"]?.value)
+    const total = rawTotal > 0 ? rawTotal : rawSubtotal + rawTax
+    const amountDue = parseAmount(summaryFields["AMOUNT_DUE"]?.value)
+    const amountPaid = parseAmount(summaryFields["AMOUNT_PAID"]?.value)
+
+    let ruleBasedPaymentStatus: "paid" | "unpaid" | null = null
+    if (total > 0 && amountPaid >= total) {
+      ruleBasedPaymentStatus = "paid"
+    } else if (amountDue > 0 || summaryFields["DUE_DATE"]?.value) {
+      ruleBasedPaymentStatus = "unpaid"
+    }
+
     const extracted = {
       vendor_name: summaryFields["VENDOR_NAME"]?.value || null,
-      document_date: summaryFields["INVOICE_RECEIPT_DATE"]?.value || null,
-      due_date: summaryFields["DUE_DATE"]?.value || null,
-      subtotal: parseAmount(summaryFields["SUBTOTAL"]?.value),
-      tax_total: parseAmount(summaryFields["TAX"]?.value),
-      total: parseAmount(summaryFields["TOTAL"]?.value || summaryFields["AMOUNT_DUE"]?.value),
-      amount_paid: parseAmount(summaryFields["AMOUNT_PAID"]?.value),
+      document_date: parseDateToISO(summaryFields["INVOICE_RECEIPT_DATE"]?.value),
+      due_date: parseDateToISO(summaryFields["DUE_DATE"]?.value),
+      subtotal: rawSubtotal,
+      tax_total: rawTax,
+      total,
+      amount_due: amountDue,
+      amount_paid: amountPaid,
+      bill_to_name: summaryFields["RECEIVER_NAME"]?.value || null,
+      bill_to_address: summaryFields["RECEIVER_ADDRESS"]?.value || null,
       line_items: lineItems,
     }
 
@@ -110,10 +143,18 @@ Deno.serve(async (req) => {
 
 ${JSON.stringify(extracted, null, 2)}
 
+This document was scanned by: ${businessName || "an unknown business"}
+
 Tasks:
 1. Suggest a single best-fit category from: Software, Office supplies, Travel, Utilities, Payroll, Repairs & maintenance, Other.
-2. Determine payment_status: "paid" if amount_paid >= total and total > 0 (or the document clearly shows payment received), "unpaid" if there's a due date and no payment shown, "unknown" if genuinely ambiguous.
-3. Check for anomalies: does subtotal + tax_total roughly match total (within a few cents)? Could there be multiple candidate "total" values that got confused (e.g. a period total vs. a grand total vs. a line sub-total)? Is anything clearly missing, inconsistent, or suspicious?
+${ruleBasedPaymentStatus
+  ? `2. payment_status is already determined to be "${ruleBasedPaymentStatus}" from the numbers — just echo that value back exactly, don't recompute it.`
+  : `2. Determine payment_status ("paid" or "unpaid") — the numbers here are ambiguous, use your best judgment.`}
+3. Check for anomalies, including:
+   - Does subtotal + tax_total roughly match total (within a few cents)?
+   - Could there be multiple candidate "total" values that got confused (e.g. a period total vs. a grand total vs. a line sub-total)?
+   - Does bill_to_name look like it genuinely matches "${businessName || "the business scanning this"}"? If bill_to_name is present and clearly refers to a different person or company, flag this — it may mean this document doesn't actually belong to this business.
+   - Is anything else clearly missing, inconsistent, or suspicious?
 
 Respond with ONLY valid JSON, no other text, in this exact shape:
 {"category": "...", "payment_status": "...", "is_flagged": true or false, "flag_reason": "..." or null}`
@@ -139,7 +180,7 @@ Respond with ONLY valid JSON, no other text, in this exact shape:
     try {
       classification = JSON.parse(claudeText)
     } catch {
-      classification = { category: "Other", payment_status: "unknown", is_flagged: false, flag_reason: null }
+      classification = { category: "Other", payment_status: ruleBasedPaymentStatus || "unknown", is_flagged: false, flag_reason: null }
     }
 
     return new Response(
@@ -147,7 +188,7 @@ Respond with ONLY valid JSON, no other text, in this exact shape:
         ...extracted,
         confidence_score: avgConfidence,
         category: classification.category,
-        payment_status: classification.payment_status,
+        payment_status: ruleBasedPaymentStatus || classification.payment_status,
         is_flagged: classification.is_flagged,
         flag_reason: classification.flag_reason,
       }),

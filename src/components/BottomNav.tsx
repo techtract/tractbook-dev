@@ -1,7 +1,7 @@
 ﻿import { useNavigate } from "react-router-dom"
 
 interface BottomNavProps {
-  active: "dashboard" | "sales" | "accounting" | "payments"
+  active: "dashboard" | "sales" | "ocr" | "accounting" | "payments"
 }
 
 export default function BottomNav({ active }: BottomNavProps) {
@@ -10,6 +10,7 @@ export default function BottomNav({ active }: BottomNavProps) {
   const items = [
     { key: "dashboard", label: "Dashboard", icon: "\u25D4", path: "/dashboard" },
     { key: "sales", label: "Sales", icon: "\uD83C\uDFF7\uFE0F", path: "/estimates" },
+    { key: "ocr", label: "OCR", icon: "\uD83D\uDCF8", path: "/ocr" },
     { key: "accounting", label: "Accounting", icon: "\u2696\uFE0F", path: "/coming-soon/accounting" },
     { key: "payments", label: "Payments", icon: "\uD83D\uDCB3", path: "/coming-soon/payments" },
   ]
@@ -29,3 +30,4 @@ export default function BottomNav({ active }: BottomNavProps) {
     </div>
   )
 }
+
