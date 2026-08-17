@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
+import BottomNav from "../../components/BottomNav"
 
 const CANADIAN_PROVINCES = [
   "Ontario", "Quebec", "British Columbia", "Alberta", "Manitoba",
@@ -169,7 +170,7 @@ export default function EditBusiness() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col px-6 py-6 max-w-sm mx-auto overflow-x-hidden">
+    <div className="relative min-h-screen flex flex-col px-6 py-6 pb-24 max-w-sm mx-auto overflow-x-hidden">
       <div className="flex items-center justify-between mb-6">
         <button onClick={() => navigate(-1)} className="text-2xl text-gray-500">
           &times;
@@ -357,8 +358,10 @@ export default function EditBusiness() {
       >
         {saving ? "Saving..." : "Save"}
       </button>
+      <BottomNav active="sales" />
     </div>
   )
 }
+
 
 

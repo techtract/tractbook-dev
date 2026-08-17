@@ -1,4 +1,5 @@
 ﻿import { useNavigate, useLocation } from "react-router-dom"
+import BottomNav from "../../components/BottomNav"
 
 interface DashboardState {
   businessId?: string
@@ -99,35 +100,9 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Bottom nav */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3">
-        <button className="flex flex-col items-center gap-1 text-blue-600">
-          <span>◔</span>
-          <span className="text-xs font-medium">Dashboard</span>
-        </button>
-        <button
-          onClick={() => navigate("/estimates")}
-          className="flex flex-col items-center gap-1 text-gray-400"
-        >
-          <span>🏷️</span>
-          <span className="text-xs">Sales</span>
-        </button>
-        <button
-          onClick={() => navigate("/coming-soon/accounting")}
-          className="flex flex-col items-center gap-1 text-gray-400"
-        >
-          <span>⚖️</span>
-          <span className="text-xs">Accounting</span>
-        </button>
-        <button
-          onClick={() => navigate("/coming-soon/payments")}
-          className="flex flex-col items-center gap-1 text-gray-400"
-        >
-          <span>💳</span>
-          <span className="text-xs">Payments</span>
-        </button>
-      </div>
+      <BottomNav active="dashboard" />
     </div>
   )
 }
+
 

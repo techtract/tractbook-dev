@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
+import BottomNav from "../../components/BottomNav"
 
 interface InvoiceRow {
   id: string
@@ -105,7 +106,7 @@ export default function InvoiceDashboard() {
   }).length
 
   return (
-    <div className="min-h-screen flex flex-col px-6 py-6 max-w-sm mx-auto overflow-x-hidden">
+    <div className="relative min-h-screen flex flex-col px-6 py-6 pb-24 max-w-sm mx-auto overflow-x-hidden">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">tractbook</h1>
         <div className="flex items-center gap-3">
@@ -242,7 +243,9 @@ export default function InvoiceDashboard() {
           })}
         </div>
       )}
+      <BottomNav active="sales" />
     </div>
   )
 }
+
 

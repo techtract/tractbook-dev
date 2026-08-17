@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
+import BottomNav from "../../components/BottomNav"
 
 interface Customer {
   id: string
@@ -152,9 +153,11 @@ export default function CustomersList() {
           ))}
         </div>
       )}
+      <BottomNav active="sales" />
     </div>
   )
 }
+
 
 
 
