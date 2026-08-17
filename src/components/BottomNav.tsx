@@ -15,7 +15,7 @@ export default function BottomNav({ active }: BottomNavProps) {
   ]
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 max-w-sm mx-auto bg-white border-t border-gray-200 flex justify-around py-3">
+    <div className="bg-white border-t border-gray-200 flex justify-around py-3 shrink-0">
       {items.map((item) => (
         <button
           key={item.key}
@@ -29,4 +29,3 @@ export default function BottomNav({ active }: BottomNavProps) {
     </div>
   )
 }
-

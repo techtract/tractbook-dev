@@ -1,4 +1,5 @@
 ﻿import { Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Welcome from "./screens/onboarding/Welcome";
 import SignUp from "./screens/onboarding/SignUp";
 import SignIn from "./screens/onboarding/SignIn";
@@ -35,52 +36,49 @@ import RecordPayment from "./screens/sales/RecordPayment";
 function App() {
   return (
     <Routes>
+      {/* Public — no session required */}
       <Route path="/" element={<Welcome />} />
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/login" element={<SignIn />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/verify-phone" element={<VerifyPhone />} />
-      <Route path="/loading" element={<Loading />} />
-      <Route path="/verify-code" element={<VerifyCode />} />
-      <Route path="/role" element={<RoleSelect />} />
-      <Route path="/business-info" element={<BusinessInfo />} />
-      <Route path="/tax-details" element={<TaxDetails />} />
-      <Route path="/industry" element={<Industry />} />
-      <Route path="/business-context" element={<BusinessContext />} />
-      <Route path="/invite-accountant" element={<InviteAccountant />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/coming-soon/:feature" element={<ComingSoon />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
-      <Route path="/customers" element={<CustomersList />} />
-      <Route path="/customers/new" element={<AddCustomer />} />
-      <Route path="/customers/:id" element={<CustomerDetail />} />
-      <Route path="/estimates/new" element={<CreateEstimate />} />
-      <Route path="/estimates" element={<EstimateDashboard />} />
-      <Route path="/estimates/:id" element={<EstimateDetail />} />
-      <Route path="/estimates/:id/edit" element={<CreateEstimate />} />
-      <Route path="/estimates/:id/send" element={<SendEstimate />} />
-      <Route path="/estimates/:id/print" element={<PrintEstimate />} />
-      <Route path="/estimates/:id/payment" element={<RecordPayment />} />
-      <Route path="/business" element={<EditBusiness />} />
-      <Route path="/invoices" element={<InvoiceDashboard />} />
-      <Route path="/invoices/new" element={<CreateInvoice />} />
-      <Route path="/invoices/:id/edit" element={<CreateInvoice />} />
-      <Route path="/invoices/:id" element={<InvoiceDetail />} />
-      <Route path="/invoices/:id/send" element={<SendInvoice />} />
-      <Route path="/invoices/:id/print" element={<PrintInvoice />} />
+
+      {/* Protected — every route below requires a real logged-in session */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/verify-phone" element={<VerifyPhone />} />
+        <Route path="/loading" element={<Loading />} />
+        <Route path="/verify-code" element={<VerifyCode />} />
+        <Route path="/role" element={<RoleSelect />} />
+        <Route path="/business-info" element={<BusinessInfo />} />
+        <Route path="/tax-details" element={<TaxDetails />} />
+        <Route path="/industry" element={<Industry />} />
+        <Route path="/business-context" element={<BusinessContext />} />
+        <Route path="/invite-accountant" element={<InviteAccountant />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/coming-soon/:feature" element={<ComingSoon />} />
+        <Route path="/customers" element={<CustomersList />} />
+        <Route path="/customers/new" element={<AddCustomer />} />
+        <Route path="/customers/:id" element={<CustomerDetail />} />
+        <Route path="/estimates/new" element={<CreateEstimate />} />
+        <Route path="/estimates" element={<EstimateDashboard />} />
+        <Route path="/estimates/:id" element={<EstimateDetail />} />
+        <Route path="/estimates/:id/edit" element={<CreateEstimate />} />
+        <Route path="/estimates/:id/send" element={<SendEstimate />} />
+        <Route path="/estimates/:id/print" element={<PrintEstimate />} />
+        <Route path="/estimates/:id/payment" element={<RecordPayment />} />
+        <Route path="/business" element={<EditBusiness />} />
+        <Route path="/invoices" element={<InvoiceDashboard />} />
+        <Route path="/invoices/new" element={<CreateInvoice />} />
+        <Route path="/invoices/:id/edit" element={<CreateInvoice />} />
+        <Route path="/invoices/:id" element={<InvoiceDetail />} />
+        <Route path="/invoices/:id/send" element={<SendInvoice />} />
+        <Route path="/invoices/:id/print" element={<PrintInvoice />} />
+      </Route>
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
 
 export default App;
-
-
-
-
-
-
-
-
-
