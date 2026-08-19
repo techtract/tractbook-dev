@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -10,6 +10,7 @@ interface Customer {
 interface LineItem {
   id: string
   itemName: string
+  description: string
   quantity: string
   unitPrice: string
   taxOption: string
@@ -74,6 +75,7 @@ function newLineItem(): LineItem {
   return {
     id: Math.random().toString(36).slice(2),
     itemName: "",
+    description: "",
     quantity: "1",
     unitPrice: "0",
     taxOption: "none",
@@ -206,6 +208,7 @@ export default function CreateEstimate() {
       const mapped: LineItem[] = lineItemRows.map((row: any) => ({
         id: Math.random().toString(36).slice(2),
         itemName: row.item_name,
+        description: row.description || "",
         quantity: String(row.quantity),
         unitPrice: String(row.unit_price),
         taxOption: row.tax_rate > 0 ? "custom" : "none",
@@ -308,6 +311,7 @@ export default function CreateEstimate() {
       const rows = validItems.map((it, index) => ({
         estimate_id: id,
         item_name: it.itemName.trim(),
+        description: it.description.trim() || null,
         quantity: parseFloat(it.quantity) || 0,
         unit_price: parseFloat(it.unitPrice) || 0,
         tax_rate: effectiveTaxRate(it),
@@ -360,6 +364,7 @@ export default function CreateEstimate() {
     const rows = validItems.map((it, index) => ({
       estimate_id: estimate.id,
       item_name: it.itemName.trim(),
+      description: it.description.trim() || null,
       quantity: parseFloat(it.quantity) || 0,
       unit_price: parseFloat(it.unitPrice) || 0,
       tax_rate: effectiveTaxRate(it),
@@ -381,9 +386,11 @@ export default function CreateEstimate() {
     navigate(`/estimates/${estimate.id}`)
   }
 
-  const filteredCustomers = customers.filter((c) =>
-    c.name.toLowerCase().includes(customerSearch.toLowerCase())
-  )
+  const filteredCustomers = customerSearch.trim().length === 0
+    ? []
+    : customers.filter((c) =>
+        c.name.toLowerCase().includes(customerSearch.toLowerCase())
+      )
 
   const provincePreset =
     businessCountry === "CA" && businessProvince ? CANADA_TAX_RATES[businessProvince] : null
@@ -535,7 +542,7 @@ export default function CreateEstimate() {
           className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-600 min-w-0"
         />
       </div>
-      <p className="text-xs text-gray-400 mb-5">Auto-set from Terms — you can override</p>
+      <p className="text-xs text-gray-400 mb-5">Auto-set from Terms � you can override</p>
 
       <div className="mb-2 flex items-center justify-between">
         <p className="text-xs font-semibold text-gray-500">ITEMS</p>
@@ -555,6 +562,13 @@ export default function CreateEstimate() {
               &times;
             </button>
           </div>
+          <input
+            type="text"
+            value={it.description}
+            onChange={(e) => updateItem(it.id, "description", e.target.value)}
+            placeholder="Description (optional)"
+            className="w-full min-w-0 border-b border-gray-100 px-1 py-1 text-xs text-gray-500 outline-none focus:border-blue-600 mb-2"
+          />
           <div className="flex gap-2 mb-2">
             <div className="flex-1 min-w-0">
               <label className="block text-[10px] text-gray-500 mb-0.5">Qty</label>
@@ -657,4 +671,3 @@ export default function CreateEstimate() {
     </div>
   )
 }
-

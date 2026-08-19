@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
@@ -38,6 +38,7 @@ export default function EditBusiness() {
   const [error, setError] = useState<string | null>(null)
 
   const [name, setName] = useState("")
+  const [phone, setPhone] = useState("")
   const [legalStructure, setLegalStructure] = useState("")
   const [yearStarted, setYearStarted] = useState("")
   const [country, setCountry] = useState("US")
@@ -103,6 +104,7 @@ export default function EditBusiness() {
     }
 
     setName(business.name || "")
+    setPhone(business.phone || "")
     setLegalStructure(business.legal_structure || "")
     setYearStarted(business.year_started ? String(business.year_started) : "")
     setCountry(business.country || "US")
@@ -133,6 +135,7 @@ export default function EditBusiness() {
       .from("businesses")
       .update({
         name: name.trim(),
+        phone: phone.trim() || null,
         legal_structure: legalStructure || null,
         year_started: yearStarted ? Number(yearStarted) : null,
         country,
@@ -196,6 +199,17 @@ export default function EditBusiness() {
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-600 mb-3 min-w-0"
+      />
+
+      <label className="block text-xs font-medium text-gray-500 mb-1">
+        Business phone <span className="text-gray-400">(optional)</span>
+      </label>
+      <input
+        type="tel"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        placeholder="+1 (555) 123-4567"
         className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-600 mb-3 min-w-0"
       />
 
@@ -364,7 +378,3 @@ export default function EditBusiness() {
     </div>
   )
 }
-
-
-
-

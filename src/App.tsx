@@ -36,6 +36,7 @@ import ReviewReceipt from "./screens/ocr/ReviewReceipt";
 import SendEstimate from "./screens/sales/SendEstimate";
 import PrintEstimate from "./screens/sales/PrintEstimate";
 import RecordPayment from "./screens/sales/RecordPayment";
+import ReceivePayment from "./screens/sales/ReceivePayment";
 
 function App() {
   return (
@@ -78,6 +79,7 @@ function App() {
         <Route path="/invoices/:id" element={<InvoiceDetail />} />
         <Route path="/invoices/:id/send" element={<SendInvoice />} />
         <Route path="/invoices/:id/print" element={<PrintInvoice />} />
+        <Route path="/invoices/:id/payment" element={<ReceivePayment />} />
         <Route path="/ocr" element={<OCRDocuments />} />
         <Route path="/ocr/insights" element={<OCRInsights />} />
         <Route path="/ocr/scan" element={<ScanReceipt />} />
@@ -90,7 +92,3 @@ function App() {
 }
 
 export default App;
-
-
-
-

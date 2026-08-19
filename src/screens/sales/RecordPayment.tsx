@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -79,7 +79,10 @@ export default function RecordPayment() {
       <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-600 mb-3 min-w-0" />
 
       <label className="block text-xs font-medium text-gray-500 mb-1">Amount</label>
-      <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-600 mb-3 min-w-0" />
+      <div className="relative mb-3">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">$</span>
+        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-sm outline-none focus:border-blue-600 min-w-0" />
+      </div>
 
       <label className="block text-xs font-medium text-gray-500 mb-1">Method</label>
       <div className="border border-gray-200 rounded-lg mb-3 overflow-hidden">
@@ -112,3 +115,4 @@ export default function RecordPayment() {
     </div>
   )
 }
+

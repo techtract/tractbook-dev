@@ -256,7 +256,7 @@ export default function InvoiceDetail() {
       </div>
 
       <button
-        onClick={() => navigate("/coming-soon/receive-payment")}
+        onClick={() => navigate(`/invoices/${id}/payment`)}
         disabled={isPaid}
         className="w-full bg-green-600 disabled:bg-green-300 text-white rounded-lg py-3 font-medium mb-6"
       >
@@ -315,4 +315,3 @@ export default function InvoiceDetail() {
     </div>
   )
 }
-
