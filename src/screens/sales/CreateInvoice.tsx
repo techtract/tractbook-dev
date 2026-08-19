@@ -543,7 +543,7 @@ export default function CreateInvoice() {
           className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-600 min-w-0"
         />
       </div>
-      <p className="text-xs text-gray-400 mb-5">Auto-set from Terms — you can override</p>
+      <p className="text-xs text-gray-400 mb-5">Auto-set from Terms â€” you can override</p>
 
       <div className="mb-2 flex items-center justify-between">
         <p className="text-xs font-semibold text-gray-500">ITEMS</p>
