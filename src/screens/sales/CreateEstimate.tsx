@@ -53,7 +53,7 @@ function computeDueDate(estimateDate: string, terms: string): string {
   return d.toISOString().slice(0, 10)
 }
 
-async function generateNextEstimateNumber(businessId: string): Promise<string> {
+export async function generateNextEstimateNumber(businessId: string): Promise<string> {
   const { data } = await supabase
     .from("estimates")
     .select("estimate_number")

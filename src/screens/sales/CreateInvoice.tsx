@@ -65,7 +65,7 @@ function newLineItem(): LineItem {
   }
 }
 
-async function generateNextInvoiceNumber(businessId: string): Promise<string> {
+export async function generateNextInvoiceNumber(businessId: string): Promise<string> {
   const { data } = await supabase
     .from("invoices")
     .select("invoice_number")
