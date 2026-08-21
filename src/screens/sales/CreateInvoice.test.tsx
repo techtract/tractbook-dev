@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+ï»¿import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter } from "react-router-dom"
 import CreateInvoice from "./CreateInvoice"
 
-function makeBuilder(opts = {}) {
-  const builder = {}
+function makeBuilder(opts: any = {}) {
+  const builder: any = {}
   const chain = () => builder
   builder.select = vi.fn(chain)
   builder.eq = vi.fn(chain)
@@ -20,7 +20,7 @@ function makeBuilder(opts = {}) {
   builder.single = vi.fn(() =>
     Promise.resolve(opts.singleResponse ?? { data: null, error: null })
   )
-  builder.then = (resolve) =>
+  builder.then = (resolve: any) =>
     resolve(opts.thenResponse ?? { data: [], error: null })
   return builder
 }
@@ -55,7 +55,7 @@ vi.mock("../../lib/supabase", () => ({
         Promise.resolve({ data: { user: { id: "user-1" } } })
       ),
     },
-    from: vi.fn((table) => {
+    from: vi.fn((table: string) => {
       switch (table) {
         case "business_members":
           return businessMembersBuilder
@@ -74,7 +74,7 @@ vi.mock("../../lib/supabase", () => ({
   },
 }))
 
-describe("CreateInvoice — double-submit guard", () => {
+describe("CreateInvoice - double-submit guard", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     businessMembersBuilder.maybeSingle = vi.fn(() =>
@@ -86,13 +86,13 @@ describe("CreateInvoice — double-submit guard", () => {
         error: null,
       })
     )
-    customersBuilder.then = (resolve) =>
+    customersBuilder.then = (resolve: any) =>
       resolve({ data: [{ id: "cust-1", name: "Acme Customer" }], error: null })
-    invoicesBuilder.then = (resolve) => resolve({ data: [], error: null })
+    invoicesBuilder.then = (resolve: any) => resolve({ data: [], error: null })
     invoicesBuilder.single = vi.fn(() =>
       Promise.resolve({ data: { id: "inv-created" }, error: null })
     )
-    lineItemsBuilder.then = (resolve) => resolve({ error: null })
+    lineItemsBuilder.then = (resolve: any) => resolve({ error: null })
   })
 
   it("only creates ONE invoice even if Save is clicked twice rapidly", async () => {
