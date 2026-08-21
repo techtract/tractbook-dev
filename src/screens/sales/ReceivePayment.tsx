@@ -16,7 +16,7 @@ export default function ReceivePayment() {
   const [done, setDone] = useState(false)
 
   async function handleSubmit() {
-    if (!id || !amount || saving) return
+    if (!id || !amount || saving || parseFloat(amount) <= 0) return
     setSaving(true)
     setError(null)
 
@@ -101,7 +101,7 @@ export default function ReceivePayment() {
       <label className="block text-xs font-medium text-gray-500 mb-1">Amount</label>
       <div className="relative mb-3">
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">$</span>
-        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-sm outline-none focus:border-blue-600 min-w-0" />
+        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" min="0" className="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-sm outline-none focus:border-blue-600 min-w-0" />
       </div>
 
       <label className="block text-xs font-medium text-gray-500 mb-1">Method</label>
@@ -124,7 +124,7 @@ export default function ReceivePayment() {
         <button onClick={() => navigate(`/invoices/${id}`)} className="flex-1 bg-gray-100 text-gray-700 rounded-lg py-3 text-sm font-semibold">
           Cancel
         </button>
-        <button onClick={handleSubmit} disabled={saving || !amount} className="flex-1 bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 text-sm font-semibold">
+        <button onClick={handleSubmit} disabled={saving || !amount || parseFloat(amount) <= 0} className="flex-1 bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 text-sm font-semibold">
           {saving ? "Saving..." : "Submit"}
         </button>
       </div>
