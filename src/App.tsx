@@ -1,5 +1,6 @@
-﻿import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AuthOnlyRoute from "./components/AuthOnlyRoute";
 import Welcome from "./screens/onboarding/Welcome";
 import SignUp from "./screens/onboarding/SignUp";
 import SignIn from "./screens/onboarding/SignIn";
@@ -49,8 +50,8 @@ function App() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
 
-      {/* Protected — every route below requires a real logged-in session */}
-      <Route element={<ProtectedRoute />}>
+      {/* Auth-only — onboarding flow, reachable BEFORE a business exists */}
+      <Route element={<AuthOnlyRoute />}>
         <Route path="/verify-phone" element={<VerifyPhone />} />
         <Route path="/loading" element={<Loading />} />
         <Route path="/verify-code" element={<VerifyCode />} />
@@ -60,6 +61,10 @@ function App() {
         <Route path="/industry" element={<Industry />} />
         <Route path="/business-context" element={<BusinessContext />} />
         <Route path="/invite-accountant" element={<InviteAccountant />} />
+      </Route>
+
+      {/* Protected — requires a real logged-in session AND an active business */}
+      <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/coming-soon/:feature" element={<ComingSoon />} />
         <Route path="/customers" element={<CustomersList />} />
