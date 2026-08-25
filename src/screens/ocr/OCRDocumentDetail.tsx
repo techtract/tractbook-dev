@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -214,10 +214,23 @@ export default function OCRDocumentDetail() {
 
       {imageUrl && (
         <div className="mb-6">
-          <p className="text-xs font-medium text-gray-500 mb-2">Receipt image</p>
-          <img src={imageUrl} alt="Receipt" className="w-full rounded-lg border border-gray-200" />
+          <p className="text-xs font-medium text-gray-500 mb-2">Receipt</p>
+          {expense.receipt_image_url?.toLowerCase().endsWith(".pdf") ? (
+            <a
+              href={imageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-center bg-blue-50 text-blue-700 rounded-lg py-3 text-sm font-semibold border border-blue-200"
+            >
+              View receipt (PDF)
+            </a>
+          ) : (
+            <img src={imageUrl} alt="Receipt" className="w-full rounded-lg border border-gray-200" />
+          )}
         </div>
       )}
     </div>
   )
 }
+
+
