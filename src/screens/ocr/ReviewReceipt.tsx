@@ -40,6 +40,7 @@ export default function ReviewReceipt() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const currencySymbol = currency === "GBP" ? "\u00A3" : currency === "EUR" ? "\u20AC" : "$"
   const confidenceScore = extracted?.confidence_score ?? null
   const isFlagged = extracted?.is_flagged || false
   const flagReason = extracted?.flag_reason || null
@@ -151,7 +152,7 @@ export default function ReviewReceipt() {
         subtotal,
         tax_total: taxTotal,
         total,
-        currency: "USD",
+        currency,
         payment_status: paymentStatus,
         confidence_score: confidenceScore,
         is_flagged: isFlagged,
@@ -333,30 +334,30 @@ export default function ReviewReceipt() {
       <div className="border-t border-gray-200 pt-3 mb-4">
         <div className="flex justify-between items-center mb-2">
           <span className="text-xs text-gray-600">Subtotal</span>
-          <input
+          <div className="flex items-center gap-1"><span className="text-xs text-gray-500">{currencySymbol}</span><input
             type="number"
             value={subtotal}
             onChange={(e) => setSubtotal(parseFloat(e.target.value) || 0)}
             className="w-24 border border-gray-200 rounded-lg px-2 py-1 text-xs text-right outline-none focus:border-blue-600"
-          />
+          /></div>
         </div>
         <div className="flex justify-between items-center mb-2">
           <span className="text-xs text-gray-600">{taxLabel || "Tax"}</span>
-          <input
+          <div className="flex items-center gap-1"><span className="text-xs text-gray-500">{currencySymbol}</span><input
             type="number"
             value={taxTotal}
             onChange={(e) => setTaxTotal(parseFloat(e.target.value) || 0)}
             className="w-24 border border-gray-200 rounded-lg px-2 py-1 text-xs text-right outline-none focus:border-blue-600"
-          />
+          /></div>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-sm font-bold text-gray-900">Total</span>
-          <input
+          <div className="flex items-center gap-1"><span className="text-sm font-bold text-gray-500">{currencySymbol}</span><input
             type="number"
             value={total}
             onChange={(e) => setTotal(parseFloat(e.target.value) || 0)}
             className="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-sm font-bold text-right outline-none focus:border-blue-600"
-          />
+          /></div>
         </div>
       </div>
 
@@ -380,6 +381,10 @@ export default function ReviewReceipt() {
     </div>
   )
 }
+
+
+
+
 
 
 
