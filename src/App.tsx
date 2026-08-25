@@ -35,6 +35,8 @@ import OCRDocuments from "./screens/ocr/OCRDocuments";
 import OCRInsights from "./screens/ocr/OCRInsights";
 import ReviewReceipt from "./screens/ocr/ReviewReceipt";
 import OCRDocumentDetail from "./screens/ocr/OCRDocumentDetail";
+import OCRCategories from "./screens/ocr/OCRCategories";
+import OCRVendors from "./screens/ocr/OCRVendors";
 import SendEstimate from "./screens/sales/SendEstimate";
 import PrintEstimate from "./screens/sales/PrintEstimate";
 import RecordPayment from "./screens/sales/RecordPayment";
@@ -88,6 +90,8 @@ function App() {
         <Route path="/invoices/:id/payment" element={<ReceivePayment />} />
         <Route path="/ocr" element={<OCRDocuments />} />
         <Route path="/ocr/insights" element={<OCRInsights />} />
+        <Route path="/ocr/categories" element={<OCRCategories />} />
+        <Route path="/ocr/vendors" element={<OCRVendors />} />
         <Route path="/ocr/scan" element={<ScanReceipt />} />
         <Route path="/ocr/review" element={<ReviewReceipt />} />
         <Route path="/ocr/:id" element={<OCRDocumentDetail />} />
@@ -99,4 +103,7 @@ function App() {
 }
 
 export default App;
+
+
+
 
