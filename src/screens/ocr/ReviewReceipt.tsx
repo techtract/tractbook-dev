@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -34,6 +34,9 @@ export default function ReviewReceipt() {
   const [taxTotal, setTaxTotal] = useState<number>(extracted?.tax_total || 0)
   const [total, setTotal] = useState<number>(extracted?.total || 0)
   const [lineItems, setLineItems] = useState<LineItem[]>(extracted?.line_items || [])
+  const [currency] = useState<string>(extracted?.currency || "USD")
+  const [currencySupported] = useState<boolean>(extracted?.currency_supported !== false)
+  const [taxLabel] = useState<string | null>(extracted?.tax_label || null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -153,6 +156,9 @@ export default function ReviewReceipt() {
         confidence_score: confidenceScore,
         is_flagged: isFlagged,
         flag_reason: flagReason,
+        document_number: extracted?.document_number || null,
+        risk_checks: extracted?.risk_checks || null,
+        risk_score: extracted?.risk_score ?? null,
         bill_to_name: extracted?.bill_to_name || null,
         bill_to_address: extracted?.bill_to_address || null,
         receipt_image_url: storagePath,
@@ -201,7 +207,7 @@ export default function ReviewReceipt() {
       <div className="flex items-center justify-between mb-4">
         <button onClick={handleDiscard} className="text-2xl text-gray-500">&#8592;</button>
         <span className="font-bold text-gray-900 text-sm">Review receipt</span>
-        <button onClick={handleSave} disabled={saving} className="text-blue-700 font-semibold text-sm disabled:text-gray-300">
+        <button onClick={handleSave} disabled={saving || !currencySupported} className="text-blue-700 font-semibold text-sm disabled:text-gray-300">
           {saving ? "Saving..." : "Save"}
         </button>
       </div>
@@ -335,7 +341,7 @@ export default function ReviewReceipt() {
           />
         </div>
         <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-gray-600">Tax</span>
+          <span className="text-xs text-gray-600">{taxLabel || "Tax"}</span>
           <input
             type="number"
             value={taxTotal}
@@ -356,9 +362,14 @@ export default function ReviewReceipt() {
 
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
-      <button
-        onClick={handleSave}
-        disabled={saving}
+      {!currencySupported && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3 text-xs text-amber-800">
+                  {currency ? currency + " isn't supported yet - coming soon. Only USD, CAD, GBP, and EUR can be saved right now." : "Couldn't detect the currency on this document."}
+                </div>
+              )}
+              <button
+                onClick={handleSave}
+        disabled={saving || !currencySupported}
         className="w-full bg-green-600 disabled:bg-green-300 text-white rounded-lg py-3 font-medium mb-2"
       >
         {saving ? "Saving..." : "Save expense"}
@@ -369,4 +380,11 @@ export default function ReviewReceipt() {
     </div>
   )
 }
+
+
+
+
+
+
+
 
