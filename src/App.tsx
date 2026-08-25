@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+﻿import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthOnlyRoute from "./components/AuthOnlyRoute";
 import Welcome from "./screens/onboarding/Welcome";
@@ -34,6 +34,7 @@ import ScanReceipt from "./screens/ocr/ScanReceipt";
 import OCRDocuments from "./screens/ocr/OCRDocuments";
 import OCRInsights from "./screens/ocr/OCRInsights";
 import ReviewReceipt from "./screens/ocr/ReviewReceipt";
+import OCRDocumentDetail from "./screens/ocr/OCRDocumentDetail";
 import SendEstimate from "./screens/sales/SendEstimate";
 import PrintEstimate from "./screens/sales/PrintEstimate";
 import RecordPayment from "./screens/sales/RecordPayment";
@@ -42,7 +43,7 @@ import ReceivePayment from "./screens/sales/ReceivePayment";
 function App() {
   return (
     <Routes>
-      {/* Public — no session required */}
+      {/* Public â€” no session required */}
       <Route path="/" element={<Welcome />} />
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/login" element={<SignIn />} />
@@ -50,7 +51,7 @@ function App() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
 
-      {/* Auth-only — onboarding flow, reachable BEFORE a business exists */}
+      {/* Auth-only â€” onboarding flow, reachable BEFORE a business exists */}
       <Route element={<AuthOnlyRoute />}>
         <Route path="/verify-phone" element={<VerifyPhone />} />
         <Route path="/loading" element={<Loading />} />
@@ -63,7 +64,7 @@ function App() {
         <Route path="/invite-accountant" element={<InviteAccountant />} />
       </Route>
 
-      {/* Protected — requires a real logged-in session AND an active business */}
+      {/* Protected â€” requires a real logged-in session AND an active business */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/coming-soon/:feature" element={<ComingSoon />} />
@@ -89,6 +90,7 @@ function App() {
         <Route path="/ocr/insights" element={<OCRInsights />} />
         <Route path="/ocr/scan" element={<ScanReceipt />} />
         <Route path="/ocr/review" element={<ReviewReceipt />} />
+        <Route path="/ocr/:id" element={<OCRDocumentDetail />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -97,3 +99,4 @@ function App() {
 }
 
 export default App;
+
