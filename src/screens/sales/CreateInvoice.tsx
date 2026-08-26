@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams, useLocation } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
 interface Customer {
@@ -15,6 +15,7 @@ interface LineItem {
   unitPrice: string
   taxOption: string
   customTaxRate: string
+  sourceExpenseId?: string
 }
 
 const TERMS_DAYS: Record<string, number> = {
@@ -53,15 +54,16 @@ function computeDueDate(invoiceDate: string, terms: string): string {
   return d.toISOString().slice(0, 10)
 }
 
-function newLineItem(): LineItem {
+function newLineItem(prefill?: { itemName?: string; unitPrice?: string; sourceExpenseId?: string }): LineItem {
   return {
     id: Math.random().toString(36).slice(2),
-    itemName: "",
+    itemName: prefill?.itemName || "",
     description: "",
     quantity: "1",
-    unitPrice: "0",
+    unitPrice: prefill?.unitPrice || "0",
     taxOption: "none",
     customTaxRate: "0",
+    sourceExpenseId: prefill?.sourceExpenseId,
   }
 }
 
@@ -88,6 +90,8 @@ export default function CreateInvoice() {
   const { id } = useParams<{ id: string }>()
   const isEditing = !!id
   const navigate = useNavigate()
+  const location = useLocation()
+  const prefill = (location.state as { prefillItemName?: string; prefillAmount?: number; prefillCurrency?: string; sourceExpenseId?: string }) || {}
 
   const [businessId, setBusinessId] = useState<string | null>(null)
   const [businessName, setBusinessName] = useState<string>("")
@@ -105,8 +109,8 @@ export default function CreateInvoice() {
   const [terms, setTerms] = useState("Net 15")
   const [dueDate, setDueDate] = useState(computeDueDate(todayStr(), "Net 15"))
 
-  const [currency, setCurrency] = useState("USD")
-  const [items, setItems] = useState<LineItem[]>([newLineItem()])
+  const [currency, setCurrency] = useState(prefill.prefillCurrency || "USD")
+  const [items, setItems] = useState<LineItem[]>([newLineItem(prefill.sourceExpenseId ? { itemName: prefill.prefillItemName, unitPrice: prefill.prefillAmount?.toString(), sourceExpenseId: prefill.sourceExpenseId } : undefined)])
   const [notes, setNotes] = useState("")
 
   const [loadingExisting, setLoadingExisting] = useState(isEditing)
@@ -153,7 +157,7 @@ export default function CreateInvoice() {
       setBusinessName(business.name || "")
       setBusinessCountry(business.country || "US")
       setBusinessProvince(business.region || null)
-      if (business.country === "CA" && !isEditing) {
+      if (business.country === "CA" && !isEditing && !prefill.prefillCurrency) {
         setCurrency("CAD")
       }
     }
@@ -370,6 +374,7 @@ export default function CreateInvoice() {
       tax_rate: effectiveTaxRate(it),
       line_total: lineSubtotal(it) + lineTax(it),
       sort_order: index,
+      source_expense_id: it.sourceExpenseId || null,
     }))
 
     const { error: itemsError } = await supabase
@@ -673,3 +678,9 @@ export default function CreateInvoice() {
     </div>
   )
 }
+
+
+
+
+
+

@@ -51,6 +51,7 @@ export default function OCRDocumentDetail() {
   const [lineItems, setLineItems] = useState<LineItem[]>([])
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [alreadyBilled, setAlreadyBilled] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -104,6 +105,15 @@ export default function OCRDocumentDetail() {
         .createSignedUrl(data.receipt_image_url, 3600)
       setImageUrl(signed?.signedUrl || null)
     }
+
+    const { data: billedCheck } = await supabase
+      .from("invoice_line_items")
+      .select("id")
+      .eq("source_expense_id", expenseId)
+      .limit(1)
+      .maybeSingle()
+
+    setAlreadyBilled(!!billedCheck)
 
     setLoading(false)
   }
@@ -174,6 +184,26 @@ export default function OCRDocumentDetail() {
         </div>
       )}
 
+      {!alreadyBilled ? (
+        <button
+          onClick={() => navigate("/invoices/new", {
+            state: {
+              prefillItemName: expense.vendor_display,
+              prefillAmount: expense.total,
+              prefillCurrency: expense.currency,
+              sourceExpenseId: expense.id,
+            },
+          })}
+          className="w-full bg-blue-700 text-white rounded-lg py-2.5 text-sm font-semibold mb-4"
+        >
+          + Add to client invoice
+        </button>
+      ) : (
+        <div className="bg-gray-50 rounded-lg px-3 py-2 text-xs text-gray-500 mb-4 text-center">
+          Already added to a client invoice
+        </div>
+      )}
+
       {(expense.bill_to_name || expense.bill_to_address) && (
         <div className="bg-gray-50 rounded-lg px-3 py-2.5 text-xs text-gray-600 mb-4">
           <p className="font-semibold text-gray-500 mb-0.5">Billed to</p>
@@ -232,6 +262,10 @@ export default function OCRDocumentDetail() {
     </div>
   )
 }
+
+
+
+
 
 
 
