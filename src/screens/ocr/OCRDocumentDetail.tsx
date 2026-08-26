@@ -145,7 +145,7 @@ export default function OCRDocumentDetail() {
 
       <div className="flex justify-between items-start mb-1">
         <h2 className="text-lg font-bold text-gray-900">{expense.vendor_display}</h2>
-        <span className="text-lg font-bold text-gray-900">{currencySymbol}{expense.total?.toFixed(2)}</span>
+        <span className="text-lg font-bold text-gray-900">{expense.currency} {currencySymbol}{expense.total?.toFixed(2)}</span>
       </div>
       <div className="flex items-center gap-2 mb-4">
         <span className="text-xs text-gray-400">{expense.document_date || ""}</span>
@@ -200,15 +200,15 @@ export default function OCRDocumentDetail() {
       <div className="border-t border-gray-200 pt-3 mb-4">
         <div className="flex justify-between text-xs text-gray-600 mb-1">
           <span>Subtotal</span>
-          <span>{currencySymbol}{expense.subtotal?.toFixed(2)}</span>
+          <span>{expense.currency} {currencySymbol}{expense.subtotal?.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-xs text-gray-600 mb-1">
           <span>Tax</span>
-          <span>{currencySymbol}{expense.tax_total?.toFixed(2)}</span>
+          <span>{expense.currency} {currencySymbol}{expense.tax_total?.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm font-bold text-gray-900">
           <span>Total</span>
-          <span>{currencySymbol}{expense.total?.toFixed(2)}</span>
+          <span>{expense.currency} {currencySymbol}{expense.total?.toFixed(2)}</span>
         </div>
       </div>
 
@@ -232,5 +232,6 @@ export default function OCRDocumentDetail() {
     </div>
   )
 }
+
 
 

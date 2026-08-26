@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
@@ -6,6 +6,7 @@ import BottomNav from "../../components/BottomNav"
 interface ExpenseRow {
   id: string
   total: number
+  currency: string
   document_date: string | null
   payment_status: string
   is_flagged: boolean
@@ -55,7 +56,7 @@ export default function OCRDocuments() {
 
     const { data, error: fetchError } = await supabase
       .from("expenses")
-      .select("id, total, document_date, payment_status, is_flagged, confidence_score, vendor_name, vendors(name), expense_categories(name)")
+      .select("id, total, currency, document_date, payment_status, is_flagged, confidence_score, vendor_name, vendors(name), expense_categories(name)")
       .eq("business_id", membership.business_id)
       .order("created_at", { ascending: false })
 
@@ -68,6 +69,7 @@ export default function OCRDocuments() {
     const rows: ExpenseRow[] = (data || []).map((row: any) => ({
       id: row.id,
       total: row.total,
+      currency: row.currency || "USD",
       document_date: row.document_date,
       payment_status: row.payment_status,
       is_flagged: row.is_flagged,
@@ -88,13 +90,14 @@ export default function OCRDocuments() {
   })
 
   const now = new Date()
-  const thisMonthTotal = expenses
+  const thisMonthTotals: Record<string, number> = {}
+  expenses
     .filter((e) => {
       if (!e.document_date) return false
       const d = new Date(e.document_date)
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
     })
-    .reduce((s, e) => s + (e.total || 0), 0)
+    .forEach((e) => { thisMonthTotals[e.currency] = (thisMonthTotals[e.currency] || 0) + (e.total || 0) })
 
   const needsReviewCount = expenses.filter((e) => e.is_flagged || !e.category_name).length
 
@@ -153,7 +156,11 @@ export default function OCRDocuments() {
           </button>
           <div className="shrink-0 w-28 border border-green-200 rounded-xl p-3">
             <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">This month</p>
-            <p className="text-sm font-bold">${thisMonthTotal.toFixed(2)}</p>
+            <p className="text-sm font-bold">
+              {Object.keys(thisMonthTotals).length === 0
+                ? "$0.00"
+                : Object.entries(thisMonthTotals).map(([cur, amt]) => `${cur} ${amt.toFixed(2)}`).join(" \u00B7 ")}
+            </p>
           </div>
           <div className="shrink-0 w-28 border border-amber-200 rounded-xl p-3">
             <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">Needs review</p>
@@ -207,7 +214,7 @@ export default function OCRDocuments() {
               >
                 <div className="flex justify-between items-start mb-1">
                   <span className="font-semibold text-gray-900 text-sm">{e.vendor_display}</span>
-                  <span className="font-bold text-gray-900 text-sm">${e.total?.toFixed(2)}</span>
+                  <span className="font-bold text-gray-900 text-sm">{e.currency} ${e.total?.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs text-gray-400">{e.document_date || ""}</span>
@@ -229,4 +236,7 @@ export default function OCRDocuments() {
     </div>
   )
 }
+
+
+
 

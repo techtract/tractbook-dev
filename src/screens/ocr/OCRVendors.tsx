@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
@@ -7,7 +7,7 @@ interface VendorRow {
   id: string
   name: string
   count: number
-  total: number
+  totals: Record<string, number>
 }
 
 export default function OCRVendors() {
@@ -53,23 +53,24 @@ export default function OCRVendors() {
 
     const { data: expenses } = await supabase
       .from("expenses")
-      .select("vendor_id, total")
+      .select("vendor_id, total, currency")
       .eq("business_id", membership.business_id)
 
-    const byVendor: Record<string, { count: number; total: number }> = {}
+    const byVendor: Record<string, { count: number; totals: Record<string, number> }> = {}
 
     for (const e of expenses || []) {
       if (!e.vendor_id) continue
-      if (!byVendor[e.vendor_id]) byVendor[e.vendor_id] = { count: 0, total: 0 }
+      const cur = e.currency || "USD"
+      if (!byVendor[e.vendor_id]) byVendor[e.vendor_id] = { count: 0, totals: {} }
       byVendor[e.vendor_id].count += 1
-      byVendor[e.vendor_id].total += e.total || 0
+      byVendor[e.vendor_id].totals[cur] = (byVendor[e.vendor_id].totals[cur] || 0) + (e.total || 0)
     }
 
     const result: VendorRow[] = (vendors || []).map((v) => ({
       id: v.id,
       name: v.name,
       count: byVendor[v.id]?.count || 0,
-      total: byVendor[v.id]?.total || 0,
+      totals: byVendor[v.id]?.totals || {},
     }))
 
     setRows(result)
@@ -109,7 +110,9 @@ export default function OCRVendors() {
               <div key={r.id} className="border-b border-gray-100 pb-3">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-gray-900 text-sm">{r.name}</span>
-                  <span className="font-bold text-gray-900 text-sm">${r.total.toFixed(2)}</span>
+                  <span className="font-bold text-gray-900 text-sm">
+                    {Object.entries(r.totals).map(([cur, amt]) => `${cur} ${amt.toFixed(2)}`).join(" \u00B7 ")}
+                  </span>
                 </div>
                 <p className="text-xs text-gray-400">{r.count} document{r.count === 1 ? "" : "s"}</p>
               </div>
@@ -121,3 +124,4 @@ export default function OCRVendors() {
     </div>
   )
 }
+

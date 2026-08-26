@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
@@ -7,7 +7,7 @@ interface CategoryRow {
   id: string
   name: string
   count: number
-  total: number
+  totals: Record<string, number>
 }
 
 export default function OCRCategories() {
@@ -53,33 +53,34 @@ export default function OCRCategories() {
 
     const { data: expenses } = await supabase
       .from("expenses")
-      .select("category_id, total")
+      .select("category_id, total, currency")
       .eq("business_id", membership.business_id)
 
-    const byCategory: Record<string, { count: number; total: number }> = {}
+    const byCategory: Record<string, { count: number; totals: Record<string, number> }> = {}
     let uncategorizedCount = 0
-    let uncategorizedTotal = 0
+    const uncategorizedTotals: Record<string, number> = {}
 
     for (const e of expenses || []) {
+      const cur = e.currency || "USD"
       if (!e.category_id) {
         uncategorizedCount += 1
-        uncategorizedTotal += e.total || 0
+        uncategorizedTotals[cur] = (uncategorizedTotals[cur] || 0) + (e.total || 0)
         continue
       }
-      if (!byCategory[e.category_id]) byCategory[e.category_id] = { count: 0, total: 0 }
+      if (!byCategory[e.category_id]) byCategory[e.category_id] = { count: 0, totals: {} }
       byCategory[e.category_id].count += 1
-      byCategory[e.category_id].total += e.total || 0
+      byCategory[e.category_id].totals[cur] = (byCategory[e.category_id].totals[cur] || 0) + (e.total || 0)
     }
 
     const result: CategoryRow[] = (categories || []).map((c) => ({
       id: c.id,
       name: c.name,
       count: byCategory[c.id]?.count || 0,
-      total: byCategory[c.id]?.total || 0,
+      totals: byCategory[c.id]?.totals || {},
     }))
 
     if (uncategorizedCount > 0) {
-      result.push({ id: "uncategorized", name: "Uncategorized", count: uncategorizedCount, total: uncategorizedTotal })
+      result.push({ id: "uncategorized", name: "Uncategorized", count: uncategorizedCount, totals: uncategorizedTotals })
     }
 
     setRows(result)
@@ -119,7 +120,9 @@ export default function OCRCategories() {
               <div key={r.id} className="border-b border-gray-100 pb-3">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-gray-900 text-sm">{r.name}</span>
-                  <span className="font-bold text-gray-900 text-sm">${r.total.toFixed(2)}</span>
+                  <span className="font-bold text-gray-900 text-sm">
+                    {Object.entries(r.totals).map(([cur, amt]) => `${cur} ${amt.toFixed(2)}`).join(" \u00B7 ")}
+                  </span>
                 </div>
                 <p className="text-xs text-gray-400">{r.count} document{r.count === 1 ? "" : "s"}</p>
               </div>
@@ -131,3 +134,4 @@ export default function OCRCategories() {
     </div>
   )
 }
+
