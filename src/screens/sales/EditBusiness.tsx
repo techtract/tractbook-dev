@@ -33,6 +33,8 @@ function isValidEIN(value: string): boolean {
 export default function EditBusiness() {
   const navigate = useNavigate()
   const [businessId, setBusinessId] = useState<string | null>(null)
+  const [stripeAccountId, setStripeAccountId] = useState<string | null>(null)
+  const [connectingStripe, setConnectingStripe] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -122,8 +124,44 @@ export default function EditBusiness() {
     setMailingStreet2(business.mailing_street2 || "")
     setMailingCity(business.mailing_city || "")
     setMailingPostalCode(business.mailing_postal_code || "")
+    setStripeAccountId(business.stripe_account_id || null)
 
     setLoading(false)
+  }
+
+  async function handleConnectStripe() {
+    setConnectingStripe(true)
+    setError(null)
+
+    const { data: sessionData } = await supabase.auth.getSession()
+    const accessToken = sessionData.session?.access_token
+
+    if (!accessToken) {
+      setError("You must be signed in to connect Stripe.")
+      setConnectingStripe(false)
+      return
+    }
+
+    const res = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-connect-onboarding`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    )
+
+    const data = await res.json()
+
+    if (!res.ok || data.error) {
+      setError(data.error || "Could not start Stripe onboarding.")
+      setConnectingStripe(false)
+      return
+    }
+
+    window.location.href = data.url
   }
 
   async function handleSave() {
@@ -287,6 +325,36 @@ export default function EditBusiness() {
         </>
       )}
 
+      <p className="text-xs font-semibold text-gray-500 mb-2 mt-2">PAYMENTS</p>
+      {stripeAccountId ? (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+          <p className="text-sm font-semibold text-green-800">Stripe connected</p>
+          <p className="text-xs text-green-700 mt-0.5">
+            You can update your payout details or continue verification anytime.
+          </p>
+          <button
+            onClick={handleConnectStripe}
+            disabled={connectingStripe}
+            className="text-blue-700 text-xs font-semibold mt-2"
+          >
+            {connectingStripe ? "Loading..." : "Manage Stripe account"}
+          </button>
+        </div>
+      ) : (
+        <div className="border border-gray-200 rounded-lg p-3 mb-3">
+          <p className="text-sm text-gray-700 mb-2">
+            Connect Stripe to let your customers pay invoices online.
+          </p>
+          <button
+            onClick={handleConnectStripe}
+            disabled={connectingStripe}
+            className="w-full bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-2.5 text-sm font-semibold"
+          >
+            {connectingStripe ? "Loading..." : "Connect with Stripe"}
+          </button>
+        </div>
+      )}
+
       <p className="text-xs font-semibold text-gray-500 mb-2 mt-2">BUSINESS ADDRESS</p>
       <input
         type="text"
@@ -378,3 +446,6 @@ export default function EditBusiness() {
     </div>
   )
 }
+
+
+

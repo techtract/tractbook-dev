@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -32,6 +32,8 @@ export default function InvoiceDetail() {
   const [savingNote, setSavingNote] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showActions, setShowActions] = useState(false)
+  const [gettingLink, setGettingLink] = useState(false)
+  const [paymentLinkError, setPaymentLinkError] = useState<string | null>(null)
 
   useEffect(() => {
     loadInvoice()
@@ -114,6 +116,45 @@ export default function InvoiceDetail() {
       return
     }
     navigate("/invoices")
+  }
+
+  async function handleGetPaymentLink() {
+    if (!id) return
+    setGettingLink(true)
+    setPaymentLinkError(null)
+
+    const { data: sessionData } = await supabase.auth.getSession()
+    const accessToken = sessionData.session?.access_token
+
+    if (!accessToken) {
+      setPaymentLinkError("You must be signed in.")
+      setGettingLink(false)
+      return
+    }
+
+    const res = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-invoice-checkout`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ invoice_id: id }),
+      }
+    )
+
+    const data = await res.json()
+
+    setGettingLink(false)
+
+    if (!res.ok || data.error) {
+      setPaymentLinkError(data.error || "Could not create payment link.")
+      return
+    }
+
+    navigator.clipboard.writeText(data.url).catch(() => {})
+    window.open(data.url, "_blank")
   }
 
   if (loading) {
@@ -255,6 +296,20 @@ export default function InvoiceDetail() {
         )}
       </div>
 
+      {invoice.status !== "paid" && (
+        <div className="mb-3">
+          <button
+            onClick={handleGetPaymentLink}
+            disabled={gettingLink}
+            className="w-full bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-2.5 text-sm font-semibold"
+          >
+            {gettingLink ? "Creating link..." : "Get Stripe payment link"}
+          </button>
+          {paymentLinkError && (
+            <p className="text-red-500 text-xs mt-2">{paymentLinkError}</p>
+          )}
+        </div>
+      )}
       <button
         onClick={() => navigate(`/invoices/${id}/payment`)}
         disabled={isPaid}
@@ -315,3 +370,5 @@ export default function InvoiceDetail() {
     </div>
   )
 }
+
+
