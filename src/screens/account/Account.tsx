@@ -2,6 +2,8 @@ import { useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import { useAccount } from "../../hooks/useAccount"
+import TimeZoneRow from "../../components/account/TimeZoneRow"
+import AccountantCard from "../../components/account/AccountantCard"
 import pkg from "../../../package.json"
 
 type Tab = "business" | "general"
@@ -148,7 +150,10 @@ export default function Account() {
                 <span>Customers</span>
                 <Chevron />
               </button>
+              <TimeZoneRow businessId={acct.businessId} />
             </div>
+
+            <AccountantCard businessId={acct.businessId} isOwner={acct.role === "owner"} />
 
             <div className="mx-5 mt-5 mb-2 text-xs font-bold tracking-wider uppercase text-body">Coming soon</div>
             <div className="mx-5 border border-border rounded-2xl overflow-hidden bg-[#fafafa]">
