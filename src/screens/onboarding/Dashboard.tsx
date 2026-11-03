@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
+import AppHeader from "../../components/AppHeader"
+import { useAccount } from "../../hooks/useAccount"
 
 interface DashboardState {
   businessId?: string
@@ -21,8 +23,10 @@ export default function Dashboard() {
   const [paidCount, setPaidCount] = useState<number>(0)
   const [unpaidCount, setUnpaidCount] = useState<number>(0)
 
+  const account = useAccount()
   const fullName =
     [state.firstName, state.lastName].filter(Boolean).join(" ") ||
+    account.fullName ||
     state.email?.split("@")[0] ||
     ""
 
@@ -90,14 +94,7 @@ export default function Dashboard() {
   return (
     <div className="h-screen bg-white flex flex-col max-w-sm mx-auto overflow-hidden">
       <div className="flex-1 overflow-y-auto px-5 pt-6 pb-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <img src="/favicon.svg" alt="Tractbook" className="w-6 h-6 rounded" />
-            <span className="text-blue-600 font-bold text-lg">tractbook</span>
-          </div>
-          <button className="text-blue-600 text-sm font-medium">More</button>
-        </div>
+        <AppHeader />
 
         {/* Greeting */}
         <h1 className="text-2xl font-bold mb-1">

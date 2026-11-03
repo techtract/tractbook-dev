@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import StepProgress from "./StepProgress"
@@ -108,6 +108,12 @@ export default function InviteAccountant() {
         setSaving(false)
         return
       }
+    }
+
+    // Remember the person's name on their account so it shows on every login, not just this session
+    const fullName = [priorState.firstName, priorState.lastName].filter(Boolean).join(" ").trim()
+    if (fullName) {
+      await supabase.auth.updateUser({ data: { full_name: fullName } })
     }
 
     setSaving(false)

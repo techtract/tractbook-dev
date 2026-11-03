@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from "react"
+import AppHeader from "../../components/AppHeader"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
@@ -69,12 +70,7 @@ export default function CustomersList() {
   return (
     <div className="h-screen flex flex-col max-w-sm mx-auto overflow-hidden">
       <div className="flex-1 overflow-y-auto px-6 py-6">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">tractbook</h1>
-        <div className="w-8 h-8 rounded-full bg-blue-700 text-white text-xs font-semibold flex items-center justify-center">
-          {"JS"}
-        </div>
-      </div>
+      <AppHeader />
 
       <div className="flex gap-1 mb-4 border-b border-gray-200">
         <button

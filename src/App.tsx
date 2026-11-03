@@ -1,4 +1,5 @@
-﻿import { Routes, Route, Navigate } from "react-router-dom";
+import Account from "./screens/account/Account"
+import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthOnlyRoute from "./components/AuthOnlyRoute";
 import Welcome from "./screens/onboarding/Welcome";
@@ -69,6 +70,7 @@ function App() {
       {/* Protected â€” requires a real logged-in session AND an active business */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/account" element={<Account />} />
         <Route path="/coming-soon/:feature" element={<ComingSoon />} />
         <Route path="/customers" element={<CustomersList />} />
         <Route path="/customers/new" element={<AddCustomer />} />
