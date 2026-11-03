@@ -88,8 +88,8 @@ export default function OCRCategories() {
   }
 
   return (
-    <div className="h-screen flex flex-col max-w-sm mx-auto overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+    <div className="h-screen glass-screen flex flex-col max-w-sm mx-auto overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-6 pt-6 pb-28">
         <h2 className="text-xl font-bold mb-1">OCR</h2>
         <p className="text-xs text-gray-500 mb-3">Spending by category</p>
 

@@ -1,4 +1,4 @@
-﻿import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
 const FEATURE_LABELS: Record<string, string> = {
   sales: "Sales",
@@ -21,7 +21,7 @@ export default function ComingSoon() {
         </p>
         <button
           onClick={() => navigate("/dashboard")}
-          className="mt-8 bg-blue-700 text-white rounded-lg px-6 py-3 font-medium"
+          className="mt-8 btn-glass btn-glass-primary"
         >
           Back to Dashboard
         </button>

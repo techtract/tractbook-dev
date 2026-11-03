@@ -1,4 +1,4 @@
-﻿import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import StepProgress from "./StepProgress"
 
 export default function RoleSelect() {
@@ -24,7 +24,7 @@ export default function RoleSelect() {
           </div>
           <button
             onClick={handleBusinessOwner}
-            className="w-full bg-blue-700 text-white rounded-lg py-3 font-medium"
+            className="w-full btn-glass btn-glass-primary"
           >
             Continue as Business Owner
           </button>

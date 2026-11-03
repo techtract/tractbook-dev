@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import StepProgress from "./StepProgress"
 
@@ -69,8 +69,8 @@ export default function TaxDetails() {
       <p className="text-gray-500 text-sm mb-6">Tell us about you and your business</p>
 
       {isCanada && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 flex items-center justify-between text-sm">
-          <span className="text-green-800">
+        <div className="bg-brand-success-soft border border-brand-success-line rounded-lg p-3 mb-4 flex items-center justify-between text-sm">
+          <span className="text-brand-success-dark">
             Detected: Canada showing Canadian fields (BN, HST, CAD)
           </span>
           <button type="button" className="text-blue-600 font-medium whitespace-nowrap ml-2">
@@ -84,7 +84,7 @@ export default function TaxDetails() {
           <>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-500">CANADA FIELDS</span>
-              <span className="text-xs bg-green-100 text-green-700 rounded-full px-2 py-0.5">AUTO-DETECTED</span>
+              <span className="text-xs bg-brand-success-soft text-brand-success-dark rounded-full px-2 py-0.5">AUTO-DETECTED</span>
             </div>
 
             <div>
@@ -230,7 +230,7 @@ export default function TaxDetails() {
           <button
             type="submit"
             disabled={!canSubmit}
-            className="flex-1 bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 font-medium"
+            className="flex-1 btn-glass btn-glass-primary"
           >
             Next
           </button>

@@ -211,8 +211,8 @@ export default function EditBusiness() {
   }
 
   return (
-    <div className="h-screen flex flex-col max-w-sm mx-auto overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+    <div className="h-screen glass-screen flex flex-col max-w-sm mx-auto overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-6 pt-6 pb-28">
       <div className="flex items-center justify-between mb-6">
         <button onClick={() => navigate(-1)} className="text-2xl text-gray-500">
           &times;
@@ -327,9 +327,9 @@ export default function EditBusiness() {
 
       <p className="text-xs font-semibold text-gray-500 mb-2 mt-2">PAYMENTS</p>
       {stripeAccountId ? (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
-          <p className="text-sm font-semibold text-green-800">Stripe connected</p>
-          <p className="text-xs text-green-700 mt-0.5">
+        <div className="bg-brand-success-soft border border-brand-success-line rounded-lg p-3 mb-3">
+          <p className="text-sm font-semibold text-brand-success-dark">Stripe connected</p>
+          <p className="text-xs text-brand-success-dark mt-0.5">
             You can update your payout details or continue verification anytime.
           </p>
           <button
@@ -348,7 +348,7 @@ export default function EditBusiness() {
           <button
             onClick={handleConnectStripe}
             disabled={connectingStripe}
-            className="w-full bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-2.5 text-sm font-semibold"
+            className="w-full btn-glass btn-glass-primary min-h-11"
           >
             {connectingStripe ? "Loading..." : "Connect with Stripe"}
           </button>
@@ -437,7 +437,7 @@ export default function EditBusiness() {
       <button
         onClick={handleSave}
         disabled={saving || !bnFormatValid}
-        className="w-full bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 font-medium mb-8 mt-2"
+        className="w-full mb-8 mt-2 btn-glass btn-glass-primary"
       >
         {saving ? "Saving..." : "Save"}
       </button>

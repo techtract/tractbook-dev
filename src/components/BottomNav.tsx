@@ -71,8 +71,9 @@ export default function BottomNav({ active }: BottomNavProps) {
     { key: "payments", label: "Payments", path: "/coming-soon/payments" },
   ] as const
 
+  // Floats over the bottom of the scrolling page: 68px tall + 12px margin, pulled up by 80px so it takes no layout space.
   return (
-    <nav aria-label="Main" className="bg-white border-t border-border flex justify-around pt-2 pb-3 shrink-0">
+    <nav aria-label="Main" className="glass-bar relative z-30 shrink-0 mx-3 mb-3 -mt-[80px] h-[68px] rounded-[28px] flex justify-around items-center px-1">
       {items.map((item) => {
         const isActive = active === item.key
         return (
@@ -81,8 +82,8 @@ export default function BottomNav({ active }: BottomNavProps) {
             type="button"
             onClick={() => navigate(item.path)}
             aria-current={isActive ? "page" : undefined}
-            className={`flex-1 min-h-11 flex flex-col items-center gap-1 ${
-              isActive ? "text-brand-blue" : "text-[#6b7280]"
+            className={`flex-1 h-14 mx-0.5 rounded-[20px] flex flex-col items-center justify-center gap-1 ${
+              isActive ? "text-brand-blue bg-brand-blue/10" : "text-[#5b6472] active:bg-brand-blue/10"
             }`}
           >
             {ICONS[item.key]}

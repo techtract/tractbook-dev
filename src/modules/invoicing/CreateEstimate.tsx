@@ -107,7 +107,7 @@ function TopBar() {
 
       {/* Autosave */}
       <span className="text-xs text-gray-400 flex items-center gap-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
+        <span className="w-1.5 h-1.5 rounded-full bg-brand-success inline-block"></span>
         Autosaved just now
       </span>
 
@@ -166,7 +166,7 @@ function KlaraBanner({ onDismiss }: { onDismiss: () => void }) {
       </div>
       <button
         onClick={onDismiss}
-        className="text-green-600 hover:text-green-800 text-lg leading-none mt-0.5 shrink-0"
+        className="text-brand-success-dark hover:text-brand-success-dark text-lg leading-none mt-0.5 shrink-0"
         aria-label="Dismiss"
       >
         ×

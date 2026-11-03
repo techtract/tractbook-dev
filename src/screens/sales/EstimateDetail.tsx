@@ -330,7 +330,7 @@ export default function EstimateDetail() {
         <button
           onClick={handleConvertToInvoice}
           disabled={converting}
-          className={`${btnBig} bg-brand-success-dark mb-6`}
+          className={`${btnBig} btn-glass-success mb-6`}
         >
           {converting ? "Converting..." : "Convert to Invoice"}
         </button>
@@ -355,7 +355,7 @@ export default function EstimateDetail() {
             <button
               onClick={handleAddNote}
               disabled={savingNote || !noteText.trim()}
-              className="text-xs font-semibold bg-blue-700 disabled:bg-blue-200 text-white rounded-lg px-3 py-1.5"
+              className="btn-glass btn-glass-primary btn-glass-sm"
             >
               {savingNote ? "Saving..." : "Save note"}
             </button>

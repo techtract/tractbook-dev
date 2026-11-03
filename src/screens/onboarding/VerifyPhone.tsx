@@ -122,7 +122,7 @@ export default function VerifyPhone() {
         <button
           type="submit"
           disabled={!canSubmit}
-          className="w-full bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 font-medium mt-4"
+          className="w-full mt-4 btn-glass btn-glass-primary"
         >
           {loading ? "Sending code..." : "Next"}
         </button>

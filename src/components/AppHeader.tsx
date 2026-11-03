@@ -8,7 +8,7 @@ export default function AppHeader() {
   const { initials, fullName, loading } = useAccount()
 
   return (
-    <div className="flex items-center justify-between mb-4">
+    <div className="glass-bar sticky top-2 z-20 flex items-center justify-between mb-4 rounded-full pl-4 pr-1.5 py-1.5">
       <Wordmark variant="dark" />
       <button
         type="button"

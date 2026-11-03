@@ -122,8 +122,8 @@ export default function Dashboard() {
   const unpaidPct = totalInvoices > 0 ? (unpaidCount / totalInvoices) * 100 : 0
 
   return (
-    <div className="h-screen bg-white flex flex-col max-w-sm mx-auto overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-6">
+    <div className="h-screen glass-screen flex flex-col max-w-sm mx-auto overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-28">
         <AppHeader />
 
         {/* Greeting */}
@@ -203,7 +203,7 @@ export default function Dashboard() {
             <button
               type="button"
               onClick={() => navigate("/invoices/new")}
-              className="min-h-11 px-5 rounded-full border-[1.5px] border-brand-blue text-brand-blue font-semibold text-sm bg-white"
+              className="min-h-11 px-5 text-sm btn-glass btn-glass-secondary"
             >
               Create your first invoice
             </button>

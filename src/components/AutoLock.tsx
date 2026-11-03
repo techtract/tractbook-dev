@@ -154,14 +154,14 @@ export default function AutoLock() {
               className="w-full min-h-[52px] rounded-xl border-[1.5px] border-brand-blue-light px-4 text-base"
             />
             {error && <p role="alert" className="text-sm text-[#b3312c] mt-2">{error}</p>}
-            <button type="submit" disabled={checking || !password} className="mt-4 w-full min-h-[52px] rounded-full bg-brand-blue text-white font-semibold disabled:opacity-60">
+            <button type="submit" disabled={checking || !password} className="mt-4 w-full min-h-[52px] disabled:opacity-60 btn-glass btn-glass-primary">
               {checking ? "Checking..." : "Unlock"}
             </button>
           </form>
         ) : (
           <p className="text-sm text-body mb-2">You signed in with Google, so please sign in again to continue.</p>
         )}
-        <button type="button" onClick={signOutNow} className="mt-3 w-full min-h-[52px] rounded-full border-[1.5px] border-brand-blue text-brand-blue font-semibold">
+        <button type="button" onClick={signOutNow} className="mt-3 w-full min-h-[52px] btn-glass btn-glass-secondary">
           {who.hasPassword ? "Sign out" : "Sign in again"}
         </button>
       </div>

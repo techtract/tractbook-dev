@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import StepProgress from "./StepProgress"
 
@@ -150,7 +150,7 @@ export default function BusinessInfo() {
           <button
             type="submit"
             disabled={!canSubmit}
-            className="flex-1 bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 font-medium"
+            className="flex-1 btn-glass btn-glass-primary"
           >
             Next
           </button>

@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 import { Wordmark } from "../../components/ui/Wordmark"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
@@ -20,7 +20,7 @@ const strengthMessage: Record<PasswordState, { text: string; className: string }
   empty: { text: "At least 8 characters, but longer is better.", className: "text-gray-500" },
   weak: { text: "Uh oh, this password isn't strong enough", className: "text-red-500" },
   medium: { text: "At least 8 characters, but longer is better.", className: "text-gray-500" },
-  strong: { text: "This is a very strong password!", className: "text-green-600" },
+  strong: { text: "This is a very strong password!", className: "text-brand-success-dark" },
 }
 
 export default function SignUp() {
@@ -160,7 +160,7 @@ export default function SignUp() {
 
       <button
         onClick={handleGoogleSignUp}
-        className="w-full bg-blue-700 text-white rounded-lg py-3 font-medium mb-3"
+        className="w-full mb-3 btn-glass btn-glass-primary"
       >
         Sign up with Google
       </button>

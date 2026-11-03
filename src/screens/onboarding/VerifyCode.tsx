@@ -176,7 +176,7 @@ export default function VerifyCode() {
       ) : (
         <button
           onClick={handleResend}
-          className="w-full bg-blue-700 text-white rounded-lg py-3 font-medium mb-4 mt-2"
+          className="w-full mb-4 mt-2 btn-glass btn-glass-primary"
         >
           Send a new code
         </button>

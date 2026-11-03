@@ -133,7 +133,7 @@ export default function InviteAccountant() {
       <h1 className="text-2xl font-bold mb-1">Invite your Accountant</h1>
       <p className="text-gray-500 text-sm mb-6">Tell us about you and your business</p>
 
-      <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 text-sm text-green-800">
+      <div className="bg-brand-success-soft border border-brand-success-line rounded-lg p-3 mb-4 text-sm text-brand-success-dark">
         Your accountant gets their own view - they see compliance, journal entries and CRA status. You see your business growth view. Same data, different lens.
       </div>
 
@@ -193,7 +193,7 @@ export default function InviteAccountant() {
               type="button"
               onClick={handleSendInvite}
               disabled={!accountantEmail.trim()}
-              className="w-full bg-green-600 disabled:bg-green-200 text-white rounded-lg py-3 font-medium"
+              className="w-full btn-glass btn-glass-success"
             >
               Send invite
             </button>
@@ -256,7 +256,7 @@ export default function InviteAccountant() {
           <button
             type="submit"
             disabled={!canContinue || saving}
-            className="flex-1 bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 font-medium"
+            className="flex-1 btn-glass btn-glass-primary"
           >
             {saving ? "Setting up..." : "Next"}
           </button>

@@ -123,7 +123,7 @@ export default function OCRDocumentDetail() {
   function statusColor(status: string) {
     if (status === "fail") return "text-red-700 bg-red-50 border-red-200"
     if (status === "warning") return "text-amber-700 bg-amber-50 border-amber-200"
-    return "text-green-700 bg-green-50 border-green-200"
+    return "text-brand-success-dark bg-brand-success-soft border-brand-success-line"
   }
 
   if (loading) {
@@ -164,7 +164,7 @@ export default function OCRDocumentDetail() {
             {expense.category_name}
           </span>
         )}
-        <span className={`text-xs font-semibold ${expense.payment_status === "paid" ? "text-green-700" : "text-amber-700"}`}>
+        <span className={`text-xs font-semibold ${expense.payment_status === "paid" ? "text-brand-success-dark" : "text-amber-700"}`}>
           {expense.payment_status === "paid" ? "Paid" : "Unpaid"}
         </span>
       </div>
@@ -194,7 +194,7 @@ export default function OCRDocumentDetail() {
               sourceExpenseId: expense.id,
             },
           })}
-          className="w-full bg-blue-700 text-white rounded-lg py-2.5 text-sm font-semibold mb-4"
+          className="w-full mb-4 btn-glass btn-glass-primary min-h-11"
         >
           + Add to client invoice
         </button>

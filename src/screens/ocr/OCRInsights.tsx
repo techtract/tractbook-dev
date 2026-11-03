@@ -206,7 +206,7 @@ export default function OCRInsights() {
 
           <p className="text-xs font-semibold text-gray-700 mb-2">Document trust breakdown</p>
           <div className="flex flex-wrap gap-3 mb-2 text-[11px] text-gray-600">
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-green-600" />Clean {cleanPct}%</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-brand-success" />Clean {cleanPct}%</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-amber-500" />Needs review {reviewPct}%</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-red-600" />Flagged {flaggedPct}%</span>
           </div>

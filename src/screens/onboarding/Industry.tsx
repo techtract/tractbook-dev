@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import StepProgress from "./StepProgress"
 
@@ -34,7 +34,7 @@ export default function Industry() {
         This personalises your invoices, tax settings and Klara AI for your business type.
       </p>
 
-      <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-6 flex gap-2 text-sm text-green-800">
+      <div className="bg-brand-success-soft border border-brand-success-line rounded-lg p-3 mb-6 flex gap-2 text-sm text-brand-success-dark">
         <span>✨</span>
         <span>
           Klara will set up your HST rates, invoice templates and workflow automations based on your business type — no manual configurationneeded.
@@ -77,7 +77,7 @@ export default function Industry() {
           <button
             type="submit"
             disabled={!selected}
-            className="flex-1 bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 font-medium"
+            className="flex-1 btn-glass btn-glass-primary"
           >
             Next
           </button>

@@ -4,7 +4,7 @@ export type StepState = "done" | "current" | "pending"
 type StepKind = "create" | "send" | "payments"
 
 const TILE: Record<StepState, string> = {
-  done: "bg-[#e8f5e4] text-brand-success-dark",
+  done: "bg-brand-success-soft text-brand-success",
   current: "bg-[#eef3ff] text-brand-blue",
   pending: "bg-[#f2f2f2] text-muted",
 }
@@ -51,10 +51,10 @@ export function StepTitle({ kind, state, title, action }: { kind: StepKind; stat
   )
 }
 
-export const btnPrimary = "min-h-10 px-3 whitespace-nowrap rounded-full bg-brand-blue text-white text-sm font-semibold"
-export const btnSoft = "min-h-10 px-3 whitespace-nowrap rounded-full bg-[#eceffd] text-brand-blue text-sm font-semibold"
-export const btnOutline = "min-h-10 px-4 rounded-full border-[1.5px] border-brand-blue text-brand-blue text-sm font-semibold"
-export const btnBig = "w-full min-h-12 rounded-full text-white font-semibold text-base disabled:opacity-60"
+export const btnPrimary = "btn-glass btn-glass-primary min-h-10 px-3 text-sm whitespace-nowrap"
+export const btnSoft = "btn-glass btn-glass-secondary min-h-10 px-3 text-sm whitespace-nowrap"
+export const btnOutline = "btn-glass btn-glass-secondary min-h-10 px-4 text-sm"
+export const btnBig = "btn-glass w-full min-h-12 text-base"
 
 export function UpgradeNote({ children }: { children: ReactNode }) {
   return (

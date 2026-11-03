@@ -27,7 +27,7 @@ function Chevron() {
 }
 
 const rowClass =
-  "w-full min-h-14 px-4 flex items-center gap-3 text-left text-[15px] font-medium bg-white border-t border-border first:border-t-0"
+  "no-press row-press w-full min-h-14 px-4 flex items-center gap-3 text-left text-[15px] font-medium bg-white border-t border-border first:border-t-0"
 
 export default function Account() {
   const navigate = useNavigate()
@@ -186,10 +186,10 @@ export default function Account() {
                   />
                   {error && <p role="alert" className="text-sm text-[#b3312c] mt-2">{error}</p>}
                   <div className="flex gap-3 mt-3">
-                    <button type="button" onClick={() => setEditing(false)} className="flex-1 min-h-12 rounded-full border-[1.5px] border-brand-blue text-brand-blue font-semibold">
+                    <button type="button" onClick={() => setEditing(false)} className="flex-1 min-h-12 btn-glass btn-glass-secondary">
                       Cancel
                     </button>
-                    <button type="submit" disabled={saving} className="flex-1 min-h-12 rounded-full bg-brand-blue text-white font-semibold disabled:opacity-60">
+                    <button type="submit" disabled={saving} className="flex-1 min-h-12 disabled:opacity-60 btn-glass btn-glass-primary">
                       {saving ? "Saving..." : "Save"}
                     </button>
                   </div>

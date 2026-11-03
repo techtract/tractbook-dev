@@ -225,7 +225,7 @@ export default function InvoiceDetail() {
       )}
 
       {isPaid && (
-        <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2.5 text-xs text-green-700 mb-4">
+        <div className="bg-brand-success-soft border border-brand-success-line rounded-lg px-3 py-2.5 text-xs text-brand-success-dark mb-4">
           This invoice has been paid in full.
         </div>
       )}
@@ -279,7 +279,7 @@ export default function InvoiceDetail() {
           <button
             onClick={handleGetPaymentLink}
             disabled={gettingLink}
-            className={`${btnBig} bg-brand-blue`}
+            className={`${btnBig} btn-glass-primary`}
           >
             {gettingLink ? "Creating link..." : "Get Stripe payment link"}
           </button>
@@ -291,7 +291,7 @@ export default function InvoiceDetail() {
       <button
         onClick={() => navigate(`/invoices/${id}/payment`)}
         disabled={isPaid}
-        className={`${btnBig} bg-brand-success-dark mb-6`}
+        className={`${btnBig} btn-glass-success mb-6`}
       >
         {isPaid ? "Paid in full" : "Receive payment"}
       </button>
@@ -315,7 +315,7 @@ export default function InvoiceDetail() {
             <button
               onClick={handleAddNote}
               disabled={savingNote || !noteText.trim()}
-              className="text-xs font-semibold bg-blue-700 disabled:bg-blue-200 text-white rounded-lg px-3 py-1.5"
+              className="btn-glass btn-glass-primary btn-glass-sm"
             >
               {savingNote ? "Saving..." : "Save note"}
             </button>

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -431,7 +431,7 @@ export default function AddCustomer() {
       <button
         onClick={handleSave}
         disabled={!canSubmit}
-        className="w-full bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 font-medium"
+        className="w-full btn-glass btn-glass-primary"
       >
         {saving ? "Saving..." : "Save"}
       </button>

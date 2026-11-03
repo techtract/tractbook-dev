@@ -671,7 +671,7 @@ export default function CreateInvoice() {
       <button
         onClick={handleSaveDraft}
         disabled={!canSubmit}
-        className="w-full bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 font-medium mb-8"
+        className="w-full mb-8 btn-glass btn-glass-primary"
       >
         {saving ? "Saving..." : isEditing ? "Save changes" : "Save draft"}
       </button>

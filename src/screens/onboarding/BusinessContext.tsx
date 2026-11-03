@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import StepProgress from "./StepProgress"
 
@@ -63,7 +63,7 @@ export default function BusinessContext() {
             ))}
           </div>
           {bookkeeping && (
-            <p className="text-xs bg-green-50 border border-green-200 rounded-lg px-3 py-2 mt-2 flex gap-2">
+            <p className="text-xs bg-brand-success-soft border border-brand-success-line rounded-lg px-3 py-2 mt-2 flex gap-2">
               <span>✨</span>
               <span>Klara will help you migrate or start clean based on this.</span>
             </p>
@@ -91,7 +91,7 @@ export default function BusinessContext() {
             ))}
           </div>
           {goal && (
-            <p className="text-xs bg-green-50 border border-green-200 rounded-lg px-3 py-2 mt-2 flex gap-2">
+            <p className="text-xs bg-brand-success-soft border border-brand-success-line rounded-lg px-3 py-2 mt-2 flex gap-2">
               <span>✨</span>
               <span>Klara will prioritise features based on this.</span>
             </p>
@@ -117,7 +117,7 @@ export default function BusinessContext() {
             ))}
           </div>
           {teamSize && (
-            <p className="text-xs bg-green-50 border border-green-200 rounded-lg px-3 py-2 mt-2">
+            <p className="text-xs bg-brand-success-soft border border-brand-success-line rounded-lg px-3 py-2 mt-2">
               Determines team collaboration and user seat features.
             </p>
           )}
@@ -134,7 +134,7 @@ export default function BusinessContext() {
           <button
             type="submit"
             disabled={!canSubmit}
-            className="flex-1 bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 font-medium"
+            className="flex-1 btn-glass btn-glass-primary"
           >
             Next
           </button>

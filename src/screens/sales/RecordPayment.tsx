@@ -56,12 +56,12 @@ export default function RecordPayment() {
           <button onClick={() => navigate(`/estimates/${id}`)} className="text-2xl text-gray-500">&times;</button>
         </div>
         <div className="flex flex-col items-center text-center pt-10">
-          <div className="w-16 h-16 rounded-full border-2 border-green-600 text-green-600 flex items-center justify-center text-3xl mb-5">
+          <div className="w-16 h-16 rounded-full border-2 border-brand-success text-brand-success-dark flex items-center justify-center text-3xl mb-5">
             &#10003;
           </div>
           <p className="text-lg font-bold mb-6">The payment was recorded</p>
         </div>
-        <button onClick={() => navigate(`/estimates/${id}`)} className="w-full bg-blue-700 text-white rounded-lg py-3 font-medium mt-auto">
+        <button onClick={() => navigate(`/estimates/${id}`)} className="w-full mt-auto btn-glass btn-glass-primary">
           Done
         </button>
       </div>
@@ -105,10 +105,10 @@ export default function RecordPayment() {
       {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
       <div className="flex gap-2 mt-auto">
-        <button onClick={() => navigate(`/estimates/${id}`)} className="flex-1 bg-gray-100 text-gray-700 rounded-lg py-3 text-sm font-semibold">
+        <button onClick={() => navigate(`/estimates/${id}`)} className="flex-1 btn-glass btn-glass-neutral">
           Cancel
         </button>
-        <button onClick={handleSubmit} disabled={saving || !amount} className="flex-1 bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 text-sm font-semibold">
+        <button onClick={handleSubmit} disabled={saving || !amount} className="flex-1 btn-glass btn-glass-primary">
           {saving ? "Saving..." : "Submit"}
         </button>
       </div>

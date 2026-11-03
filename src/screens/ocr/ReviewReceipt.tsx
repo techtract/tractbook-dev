@@ -216,11 +216,11 @@ export default function ReviewReceipt() {
       {(confidenceScore !== null || isFlagged) && (
         <div className="flex gap-2 mb-3">
           {confidenceScore !== null && (
-            <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">
+            <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-brand-success-soft text-brand-success-dark">
               {Math.round(confidenceScore)}% confidence
             </span>
           )}
-          <span className={`text-[10px] font-semibold px-2 py-1 rounded-full ${paymentStatus === "paid" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+          <span className={`text-[10px] font-semibold px-2 py-1 rounded-full ${paymentStatus === "paid" ? "bg-brand-success-soft text-brand-success-dark" : "bg-amber-100 text-amber-700"}`}>
             {paymentStatus === "paid" ? "Paid" : "Unpaid"}
           </span>
         </div>
@@ -371,7 +371,7 @@ export default function ReviewReceipt() {
               <button
                 onClick={handleSave}
         disabled={saving || !currencySupported}
-        className="w-full bg-green-600 disabled:bg-green-300 text-white rounded-lg py-3 font-medium mb-2"
+        className="w-full mb-2 btn-glass btn-glass-success"
       >
         {saving ? "Saving..." : "Save expense"}
       </button>

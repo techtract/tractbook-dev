@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -96,10 +96,10 @@ export default function SendInvoice() {
       </p>
 
       <div className="flex gap-2 mt-auto">
-        <button onClick={() => navigate(`/invoices/${id}`)} className="flex-1 bg-gray-100 text-gray-700 rounded-lg py-3 text-sm font-semibold">
+        <button onClick={() => navigate(`/invoices/${id}`)} className="flex-1 btn-glass btn-glass-neutral">
           Cancel
         </button>
-        <button onClick={handleMarkSent} disabled={marking} className="flex-1 bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-3 text-sm font-semibold">
+        <button onClick={handleMarkSent} disabled={marking} className="flex-1 btn-glass btn-glass-primary">
           {marking ? "Saving..." : "Mark as sent"}
         </button>
       </div>

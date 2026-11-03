@@ -68,8 +68,8 @@ export default function CustomersList() {
   )
 
   return (
-    <div className="h-screen flex flex-col max-w-sm mx-auto overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+    <div className="h-screen glass-screen flex flex-col max-w-sm mx-auto overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-6 pt-6 pb-28">
       <AppHeader />
 
       <div className="flex gap-1 mb-4 border-b border-gray-200">
@@ -109,13 +109,13 @@ export default function CustomersList() {
       <div className="flex gap-2 mb-5">
         <button
           onClick={() => navigate("/coming-soon/import-customers")}
-          className="flex-1 border border-blue-600 text-blue-700 rounded-lg py-2.5 text-sm font-semibold"
+          className="flex-1 btn-glass btn-glass-secondary min-h-11"
         >
           Import CSV
         </button>
         <button
           onClick={() => navigate("/customers/new")}
-          className="flex-1 bg-blue-700 text-white rounded-lg py-2.5 text-sm font-semibold"
+          className="flex-1 btn-glass btn-glass-primary min-h-11"
         >
           + Add customer
         </button>

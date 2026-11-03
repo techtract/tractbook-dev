@@ -93,7 +93,7 @@ export default function Feedback() {
         <div className="mx-5 mt-6 p-5 rounded-2xl border border-brand-success bg-white" role="status">
           <div className="font-wordmark font-extrabold text-lg text-brand-success-dark">Sent</div>
           <p className="mt-1 text-[15px] text-body">{copy.thanks}</p>
-          <button type="button" onClick={() => navigate(-1)} className="mt-4 w-full min-h-[52px] rounded-full bg-brand-blue text-white font-semibold">
+          <button type="button" onClick={() => navigate(-1)} className="mt-4 w-full min-h-[52px] btn-glass btn-glass-primary">
             Back to account
           </button>
         </div>
@@ -114,7 +114,7 @@ export default function Feedback() {
           <button
             type="submit"
             disabled={sending || !message.trim()}
-            className="mt-4 w-full min-h-[52px] rounded-full bg-brand-blue text-white font-semibold disabled:opacity-60"
+            className="mt-4 w-full min-h-[52px] disabled:opacity-60 btn-glass btn-glass-primary"
           >
             {sending ? "Sending..." : copy.button}
           </button>

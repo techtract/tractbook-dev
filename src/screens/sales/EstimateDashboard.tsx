@@ -18,7 +18,7 @@ interface EstimateRow {
 type Filter = "all" | "draft" | "sent" | "accepted"
 
 function statusInfo(status: string, dueDate: string | null): { text: string; className: string } {
-  if (status === "accepted") return { text: "Accepted", className: "text-green-700" }
+  if (status === "accepted") return { text: "Accepted", className: "text-brand-success-dark" }
   if (!dueDate) return { text: status.charAt(0).toUpperCase() + status.slice(1), className: "text-gray-500" }
 
   const due = new Date(dueDate + "T00:00:00")
@@ -127,8 +127,8 @@ export default function EstimateDashboard() {
   }).length
 
   return (
-    <div className="h-screen flex flex-col max-w-sm mx-auto overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+    <div className="h-screen glass-screen flex flex-col max-w-sm mx-auto overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-6 pt-6 pb-28">
       <AppHeader />
 
       <div className="flex gap-1 mb-4 border-b border-gray-200">
@@ -156,7 +156,7 @@ export default function EstimateDashboard() {
       </div>
 
       {showKlaraBanner && expiringSoonCount > 0 && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div className="mb-4 p-3 bg-brand-success-soft border border-brand-success-line rounded-lg">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-bold flex items-center gap-1.5">
               <span className="w-3.5 h-3.5 rounded-full bg-blue-600 inline-block" /> Klara suggests
@@ -183,11 +183,11 @@ export default function EstimateDashboard() {
           <span className="text-blue-700 text-lg font-bold">+</span>
           <span className="text-[11px] font-semibold text-gray-600 text-center">New estimate</span>
         </button>
-        <div className="shrink-0 w-28 border border-green-200 rounded-xl p-3">
+        <div className="shrink-0 w-28 border border-brand-success-line rounded-xl p-3">
           <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">Draft</p>
           <p className="text-sm font-bold">${draftTotal.toFixed(2)}</p>
         </div>
-        <div className="shrink-0 w-28 border border-green-200 rounded-xl p-3">
+        <div className="shrink-0 w-28 border border-brand-success-line rounded-xl p-3">
           <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">Sent</p>
           <p className="text-sm font-bold">${sentTotal.toFixed(2)}</p>
         </div>
@@ -215,7 +215,7 @@ export default function EstimateDashboard() {
 
       <button
         onClick={() => navigate("/estimates/new")}
-        className="w-full bg-green-600 text-white rounded-lg py-2.5 text-sm font-semibold mb-5"
+        className="w-full mb-5 btn-glass btn-glass-success min-h-11"
       >
         + Create estimate
       </button>

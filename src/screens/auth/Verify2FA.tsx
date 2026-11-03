@@ -94,7 +94,7 @@ export default function Verify2FA() {
         <button
           type="submit"
           disabled={busy || code.length !== 6}
-          className="w-full min-h-[52px] rounded-full bg-brand-blue text-white font-semibold text-base mt-4 disabled:opacity-60"
+          className="w-full min-h-[52px] text-base mt-4 disabled:opacity-60 btn-glass btn-glass-primary"
         >
           {busy ? "Checking..." : "Continue"}
         </button>

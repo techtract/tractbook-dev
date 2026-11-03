@@ -71,7 +71,7 @@ export default function AccountantCard({ businessId, isOwner }: { businessId: st
           <div className="p-4">
             <p className="text-[15px] text-body">Give your accountant access so they can review your books.</p>
             {isOwner ? (
-              <button type="button" onClick={() => setAdding(true)} className="mt-3 w-full min-h-12 rounded-full bg-brand-blue text-white font-semibold">
+              <button type="button" onClick={() => setAdding(true)} className="mt-3 w-full min-h-12 btn-glass btn-glass-primary">
                 Invite your accountant
               </button>
             ) : (
@@ -103,10 +103,10 @@ export default function AccountantCard({ businessId, isOwner }: { businessId: st
             <input id="acc-email" type="email" inputMode="email" autoComplete="off" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full min-h-[52px] rounded-xl border-[1.5px] border-brand-blue-light px-4 text-base" />
             {error && <p role="alert" className="text-sm text-[#b3312c] mt-2">{error}</p>}
             <div className="flex gap-3 mt-3">
-              <button type="button" onClick={() => { setAdding(false); setError(null) }} className="flex-1 min-h-12 rounded-full border-[1.5px] border-brand-blue text-brand-blue font-semibold">
+              <button type="button" onClick={() => { setAdding(false); setError(null) }} className="flex-1 min-h-12 btn-glass btn-glass-secondary">
                 Cancel
               </button>
-              <button type="submit" disabled={saving} className="flex-1 min-h-12 rounded-full bg-brand-blue text-white font-semibold disabled:opacity-60">
+              <button type="submit" disabled={saving} className="flex-1 min-h-12 disabled:opacity-60 btn-glass btn-glass-primary">
                 {saving ? "Saving..." : "Save invite"}
               </button>
             </div>

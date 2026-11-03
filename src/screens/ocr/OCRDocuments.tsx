@@ -103,8 +103,8 @@ export default function OCRDocuments() {
   const needsReviewCount = expenses.filter((e) => e.is_flagged || !e.category_name).length
 
   return (
-    <div className="h-screen flex flex-col max-w-sm mx-auto overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+    <div className="h-screen glass-screen flex flex-col max-w-sm mx-auto overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-6 pt-6 pb-28">
         <AppHeader />
 
         <div className="flex gap-1 mb-4 border-b border-gray-200">
@@ -145,7 +145,7 @@ export default function OCRDocuments() {
             <span className="text-blue-700 text-lg font-bold">+</span>
             <span className="text-[11px] font-semibold text-gray-600 text-center">Scan receipt</span>
           </button>
-          <div className="shrink-0 w-28 border border-green-200 rounded-xl p-3">
+          <div className="shrink-0 w-28 border border-brand-success-line rounded-xl p-3">
             <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">This month</p>
             <p className="text-sm font-bold">
               {Object.keys(thisMonthTotals).length === 0
@@ -177,7 +177,7 @@ export default function OCRDocuments() {
 
         <button
           onClick={() => navigate("/ocr/scan")}
-          className="w-full bg-green-600 text-white rounded-lg py-2.5 text-sm font-semibold mb-5"
+          className="w-full mb-5 btn-glass btn-glass-success min-h-11"
         >
           + Scan receipt
         </button>
