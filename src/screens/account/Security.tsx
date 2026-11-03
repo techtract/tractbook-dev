@@ -118,7 +118,7 @@ export default function Security() {
 
   const msg = (m: { ok: boolean; text: string } | null) =>
     m && (
-      <p role="status" className={`text-sm mt-3 ${m.ok ? "text-success-dark" : "text-error"}`}>
+      <p role="status" className={`text-sm mt-3 ${m.ok ? "text-brand-success-dark" : "text-[#b3312c]"}`}>
         {m.text}
       </p>
     )
@@ -179,7 +179,7 @@ export default function Security() {
         ) : (
           <>
             <div className="flex items-center justify-between mt-3">
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${factorId ? "bg-[#e8f6e5] text-success-dark" : "bg-[#eceffd] text-body"}`}>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${factorId ? "bg-[#e8f6e5] text-brand-success-dark" : "bg-[#eceffd] text-body"}`}>
                 {factorId ? "On" : "Off"}
               </span>
             </div>

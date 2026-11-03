@@ -175,7 +175,7 @@ export default function Account() {
                     onChange={(e) => setNameDraft(e.target.value)}
                     className="w-full h-13 min-h-[52px] rounded-xl border-[1.5px] border-brand-blue-light px-4 text-base"
                   />
-                  {error && <p role="alert" className="text-sm text-error mt-2">{error}</p>}
+                  {error && <p role="alert" className="text-sm text-[#b3312c] mt-2">{error}</p>}
                   <div className="flex gap-3 mt-3">
                     <button type="button" onClick={() => setEditing(false)} className="flex-1 min-h-12 rounded-full border-[1.5px] border-brand-blue text-brand-blue font-semibold">
                       Cancel
@@ -226,7 +226,7 @@ export default function Account() {
           type="button"
           onClick={signOut}
           disabled={signingOut}
-          className="w-full min-h-[52px] rounded-full border-[1.5px] border-error bg-white text-[#b3312c] font-semibold text-base disabled:opacity-60"
+          className="w-full min-h-[52px] rounded-full border-[1.5px] border-brand-error bg-white text-[#b3312c] font-semibold text-base disabled:opacity-60"
         >
           {signingOut ? "Signing out..." : "Sign out"}
         </button>

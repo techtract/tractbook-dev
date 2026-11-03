@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAccount } from "../hooks/useAccount"
+import { Wordmark } from "./ui/Wordmark"
 
 export default function AppHeader() {
   const navigate = useNavigate()
@@ -8,10 +9,7 @@ export default function AppHeader() {
 
   return (
     <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center gap-2">
-        <img src="/favicon.svg" alt="" className="w-6 h-6 rounded" />
-        <span className="text-brand-blue font-bold text-lg">tractbook</span>
-      </div>
+      <Wordmark variant="dark" />
       <button
         type="button"
         onClick={() => navigate("/account", { state: { from: location.pathname } })}

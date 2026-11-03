@@ -1,4 +1,5 @@
 ﻿import { useState } from "react"
+import { Wordmark } from "../../components/ui/Wordmark"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 export default function SignIn() {
@@ -50,6 +51,7 @@ export default function SignIn() {
   }
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-10 max-w-sm mx-auto">
+      <Wordmark variant="dark" className="mb-10" />
       <h1 className="text-2xl font-bold mb-1">Welcome back</h1>
       <p className="text-gray-500 text-sm mb-8">
         Sign in to continue to Tractbook

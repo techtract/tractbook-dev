@@ -1,4 +1,5 @@
 ﻿import { useState } from "react"
+import { Wordmark } from "../../components/ui/Wordmark"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -52,6 +53,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-10 max-w-sm mx-auto">
+      <Wordmark variant="dark" className="mb-10" />
       <h1 className="text-2xl font-bold mb-1">Forgot your password?</h1>
       <p className="text-gray-500 text-sm mb-8">
         Enter your email and we'll send you a link to reset it.

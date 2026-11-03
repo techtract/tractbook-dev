@@ -4,6 +4,23 @@ import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
 import AppHeader from "../../components/AppHeader"
 import { useAccount } from "../../hooks/useAccount"
+import { getSetupProgress, type SetupFacts } from "../../lib/setupProgress"
+
+function Svg({ children }: { children: React.ReactNode }) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {children}
+    </svg>
+  )
+}
+
+function Chevron() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 6l6 6-6 6" />
+    </svg>
+  )
+}
 
 interface DashboardState {
   businessId?: string
@@ -22,6 +39,7 @@ export default function Dashboard() {
   const [scannedCount, setScannedCount] = useState<number>(0)
   const [paidCount, setPaidCount] = useState<number>(0)
   const [unpaidCount, setUnpaidCount] = useState<number>(0)
+  const [setupFacts, setSetupFacts] = useState<SetupFacts | null>(null)
 
   const account = useAccount()
   const fullName =
@@ -85,8 +103,21 @@ export default function Dashboard() {
     }
     setPaidCount(paid)
     setUnpaidCount(unpaid)
+
+    const [{ count: customerCount }, { count: estimateCount }, { data: biz }] = await Promise.all([
+      supabase.from("customers").select("id", { count: "exact", head: true }).eq("business_id", membership.business_id),
+      supabase.from("estimates").select("id", { count: "exact", head: true }).eq("business_id", membership.business_id),
+      supabase.from("businesses").select("stripe_account_id").eq("id", membership.business_id).maybeSingle(),
+    ])
+    setSetupFacts({
+      customers: customerCount || 0,
+      documents: (estimateCount || 0) + (invoices?.length || 0),
+      receipts: expenseCount || 0,
+      paymentsConnected: !!biz?.stripe_account_id,
+    })
   }
 
+  const setup = setupFacts ? getSetupProgress(setupFacts) : null
   const totalInvoices = paidCount + unpaidCount
   const paidPct = totalInvoices > 0 ? (paidCount / totalInvoices) * 100 : 0
   const unpaidPct = totalInvoices > 0 ? (unpaidCount / totalInvoices) * 100 : 0
@@ -98,59 +129,74 @@ export default function Dashboard() {
 
         {/* Greeting */}
         <h1 className="text-2xl font-bold mb-1">
-          {greeting}{fullName ? `, ${fullName}` : ""} !
+          {greeting}{fullName ? `, ${fullName.split(" ")[0]}` : ""} !
         </h1>
-        <p className="text-gray-500 text-sm mb-6">{subtext}</p>
+        <p className="text-body text-sm mb-6">{subtext}</p>
 
-        {/* Setup progress card */}
-        <button className="w-full bg-orange-50 border border-orange-100 rounded-xl p-4 mb-6 text-left">
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <p className="font-semibold text-gray-900">Set up your account</p>
-              <p className="text-sm text-gray-500">Next: Get paid faster</p>
+        {/* Setup progress card: only while setup is unfinished */}
+        {setup && !setup.complete && setup.next && (
+          <button
+            type="button"
+            onClick={() => navigate(setup.next!.path)}
+            className="w-full bg-[#fff4e8] border border-[#f6dfc4] rounded-2xl p-4 mb-6 text-left"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="font-semibold text-ink">Set up your account</p>
+                <p className="text-sm text-body">
+                  {setup.percent}% complete &middot; Next: {setup.next.label}
+                </p>
+              </div>
+              <Chevron />
             </div>
-            <span className="text-gray-400">&#8250;</span>
-          </div>
-          <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-            <div className="h-full bg-green-400 rounded-full" style={{ width: "60%" }} />
-          </div>
-        </button>
+            <div
+              role="progressbar"
+              aria-label="Account setup progress"
+              aria-valuenow={setup.percent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              className="w-full h-1.5 bg-[#e5e7eb] rounded-full overflow-hidden"
+            >
+              <div className="h-full bg-brand-success rounded-full" style={{ width: `${setup.percent}%` }} />
+            </div>
+          </button>
+        )}
 
         {/* Action buttons */}
         <div className="grid grid-cols-2 gap-3 mb-8">
           <button
             onClick={() => navigate("/estimates")}
-            className="bg-blue-50 rounded-xl py-5 flex flex-col items-center gap-2"
+            className="bg-[#eef3ff] rounded-2xl py-5 flex flex-col items-center gap-2"
           >
-            <span className="text-blue-600 text-2xl">+</span>
-            <span className="text-blue-700 font-semibold text-sm">Create new...</span>
+            <span className="text-brand-blue"><Svg><path d="M12 5v14M5 12h14" /></Svg></span>
+            <span className="text-brand-blue-dark font-semibold text-sm">Create new...</span>
           </button>
           <button
             onClick={() => navigate("/ocr/scan")}
-            className="bg-purple-50 rounded-xl py-5 flex flex-col items-center gap-2"
+            className="bg-[#f6f1fe] rounded-2xl py-5 flex flex-col items-center gap-2"
           >
-            <span className="text-purple-600 text-2xl">&#128247;</span>
-            <span className="text-purple-700 font-semibold text-sm">Scan receipt</span>
+            <span className="text-[#6b21c8]"><Svg><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></Svg></span>
+            <span className="text-[#6b21c8] font-semibold text-sm">Scan receipt</span>
           </button>
         </div>
 
         {/* Business at a glance */}
-        <h2 className="font-semibold text-gray-900 mb-3">Business at a glance</h2>
+        <h2 className="text-lg mb-3">Business at a glance</h2>
         <div className="grid grid-cols-2 gap-3 mb-8">
-          <div className="border border-gray-200 rounded-xl p-4">
-            <span className="text-gray-400 text-lg">&#128247;</span>
+          <div className="border border-border rounded-2xl p-4">
+            <span className="text-brand-blue"><Svg><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M4 12h16" /></Svg></span>
             <p className="text-sm text-gray-500 mt-3">Documents scanned</p>
             <p className="text-lg font-bold text-gray-900">{scannedCount}</p>
           </div>
-          <div className="border border-gray-200 rounded-xl p-4">
-            <span className="text-gray-400 text-lg">&#128196;</span>
+          <div className="border border-border rounded-2xl p-4">
+            <span className="text-brand-blue"><Svg><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5M9 13h6M9 17h4" /></Svg></span>
             <p className="text-sm text-gray-500 mt-3">Total invoices</p>
             <p className="text-lg font-bold text-gray-900">{totalInvoices}</p>
           </div>
         </div>
 
         {/* Invoice payment status */}
-        <h2 className="font-semibold text-gray-900 mb-1">Invoice status</h2>
+        <h2 className="text-lg mb-1">Invoice status</h2>
         <p className="text-sm text-gray-500 mb-3">Paid vs. unpaid invoices.</p>
         {totalInvoices === 0 ? (
           <p className="text-sm text-gray-400 mb-8">No invoices yet.</p>
@@ -158,11 +204,11 @@ export default function Dashboard() {
           <div className="mb-8 space-y-3">
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="font-semibold text-green-700">Paid</span>
+                <span className="font-semibold text-brand-success-dark">Paid</span>
                 <span className="text-gray-500">{paidCount}</span>
               </div>
               <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-green-500 rounded-full" style={{ width: `${paidPct}%` }} />
+                <div className="h-full bg-brand-success rounded-full" style={{ width: `${paidPct}%` }} />
               </div>
             </div>
             <div>
@@ -171,14 +217,14 @@ export default function Dashboard() {
                 <span className="text-gray-500">{unpaidCount}</span>
               </div>
               <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-gray-400 rounded-full" style={{ width: `${unpaidPct}%` }} />
+                <div className="h-full bg-[#9ca3af] rounded-full" style={{ width: `${unpaidPct}%` }} />
               </div>
             </div>
           </div>
         )}
 
         {/* Profit & loss */}
-        <h2 className="font-semibold text-gray-900 mb-1">Profit &amp; loss</h2>
+        <h2 className="text-lg mb-1">Profit &amp; loss</h2>
         <p className="text-sm text-gray-500 mb-3">
           Income and expenses from the past 12 months.
         </p>

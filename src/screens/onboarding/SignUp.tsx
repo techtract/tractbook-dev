@@ -1,4 +1,5 @@
 ﻿import { useState } from "react"
+import { Wordmark } from "../../components/ui/Wordmark"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -99,7 +100,8 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-10 max-w-sm mx-auto">
-      <h1 className="text-2xl font-bold mb-1">Financial Clarity Starts here</h1>
+      <Wordmark variant="dark" className="mb-10" />
+      <h1 className="text-2xl font-bold mb-1">Financial clarity starts here</h1>
       <p className="text-gray-500 text-sm mb-8">
         Tractbook helps freelancers, consultants, and small businesses around the world simplify their finances
       </p>
@@ -111,7 +113,7 @@ export default function SignUp() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Daniel"
+            placeholder="you@example.com"
             className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600"
           />
         </div>

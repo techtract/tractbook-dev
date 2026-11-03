@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { Wordmark } from "../../components/ui/Wordmark"
 import { useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -74,6 +75,7 @@ export default function Verify2FA() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-10 max-w-sm mx-auto">
+      <Wordmark variant="dark" className="mb-10" />
       <h1 className="text-2xl mb-1">Two-step verification</h1>
       <p className="text-body text-sm mb-6">Open your authenticator app and enter the 6-digit code for Tractbook.</p>
       <form onSubmit={handleSubmit}>
@@ -88,7 +90,7 @@ export default function Verify2FA() {
           onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
           className="w-full min-h-[52px] rounded-xl border-[1.5px] border-brand-blue-light px-4 text-xl tracking-widest text-center bg-white"
         />
-        {error && <p role="alert" className="text-sm text-error mt-2">{error}</p>}
+        {error && <p role="alert" className="text-sm text-[#b3312c] mt-2">{error}</p>}
         <button
           type="submit"
           disabled={busy || code.length !== 6}
