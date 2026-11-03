@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { StepCard, StepTitle, UpgradeNote, BackArrow, MoreButton, btnPrimary, btnSoft, btnOutline, btnBig } from "../../components/sales/StepCard"
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -182,14 +183,12 @@ export default function InvoiceDetail() {
   return (
     <div className="min-h-screen flex flex-col px-6 py-6 max-w-sm mx-auto overflow-x-hidden">
       <div className="flex items-center justify-between mb-4">
-        <button onClick={() => navigate("/invoices")} className="text-2xl text-gray-500">&#8592;</button>
+        <BackArrow onClick={() => navigate("/invoices")} />
         <div className="flex items-center gap-2">
           <span className="font-bold text-gray-900">Invoice {invoice.invoice_number}</span>
           <span className="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase">{invoice.status}</span>
         </div>
-        <button onClick={() => setShowActions((s) => !s)} className="w-7 h-7 rounded-lg bg-gray-100 text-gray-700 text-lg font-bold flex items-center justify-center">
-          &#8942;
-        </button>
+        <MoreButton onClick={() => setShowActions((s) => !s)} />
       </div>
 
       {showActions && (
@@ -227,81 +226,60 @@ export default function InvoiceDetail() {
 
       {isPaid && (
         <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2.5 text-xs text-green-700 mb-4">
-          &#9989; This invoice has been paid in full.
+          This invoice has been paid in full.
         </div>
       )}
 
-      <div className="border border-gray-200 rounded-xl p-3.5 mb-3">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-7 h-7 rounded-full bg-green-600 text-white flex items-center justify-center text-xs">&#10003;</div>
-          <span className="text-sm font-bold text-gray-900">Create</span>
-        </div>
-        <p className="text-xs text-gray-500 ml-9 mb-2">
+      <StepCard>
+        <StepTitle kind="create" state="done" title="Create" />
+        <p className="text-xs text-body ml-12 mb-2">
           Created {new Date(invoice.created_at).toLocaleDateString()}
         </p>
-        <div className="ml-9">
-          <button
-            onClick={() => navigate(`/invoices/${id}/edit`)}
-            className="text-xs font-semibold text-blue-700 border border-blue-700 rounded-lg px-3 py-1.5"
-          >
+        <div className="ml-12">
+          <button onClick={() => navigate(`/invoices/${id}/edit`)} className={btnOutline}>
             Edit draft
           </button>
         </div>
-      </div>
+      </StepCard>
 
-      <div className="border border-gray-200 rounded-xl p-3.5 mb-3">
-        <div className="flex items-center gap-2 mb-1">
-          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${isSent ? "bg-green-600 text-white" : "border-2 border-blue-600 text-blue-600"}`}>
-            {isSent ? "\u2713" : "\u25B6"}
-          </div>
-          <span className="text-sm font-bold text-gray-900">Send</span>
-        </div>
-        <p className="text-xs text-gray-500 ml-9 mb-2">
+      <StepCard>
+        <StepTitle kind="send" state={isSent ? "done" : "current"} title="Send" />
+        <p className="text-xs text-body ml-12 mb-2">
           {invoice.sent_at ? `Last sent: ${new Date(invoice.sent_at).toLocaleDateString()}` : "Last sent: Never"}
         </p>
-        <div className="ml-9 flex gap-2 mb-2">
-          <button onClick={handleMarkSent} className="text-xs font-semibold text-gray-700 bg-gray-100 rounded-lg px-3 py-1.5">
+        <div className="flex gap-2 mt-1">
+          <button onClick={handleMarkSent} className={`${btnSoft} flex-1`}>
             Mark as sent
           </button>
-          <button onClick={() => navigate(`/invoices/${id}/send`)} className="text-xs font-semibold text-white bg-blue-700 rounded-lg px-3 py-1.5">
+          <button onClick={() => navigate(`/invoices/${id}/send`)} className={`${btnPrimary} flex-1`}>
             Send invoice
           </button>
         </div>
-        <div className="ml-9 bg-pink-50 border border-pink-200 rounded-lg px-3 py-2 flex items-center justify-between text-xs text-pink-800">
-          <span>&#128274; Auto-remind every 7 days</span>
-          <span className="bg-pink-600 text-white font-bold px-2 py-0.5 rounded-full text-[10px]">Upgrade</span>
-        </div>
-      </div>
+        <UpgradeNote>Auto-remind every 7 days</UpgradeNote>
+      </StepCard>
 
-      <div className="border border-gray-200 rounded-xl p-3.5 mb-4">
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-2">
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${isPaid ? "bg-green-600 text-white" : "border-2 border-gray-300 text-gray-400"}`}>
-              {isPaid ? "\u2713" : "\u25CF"}
-            </div>
-            <span className="text-sm font-bold text-gray-900">Payments</span>
-          </div>
-        </div>
+      <StepCard>
+        <StepTitle kind="payments" state={isPaid ? "done" : "pending"} title="Payments" />
         {payments.length === 0 ? (
-          <p className="text-xs text-gray-500 ml-9">No payments recorded yet.</p>
+          <p className="text-xs text-body ml-12">No payments recorded yet.</p>
         ) : (
-          <div className="ml-9 space-y-1">
+          <div className="ml-12 space-y-1">
             {payments.map((p) => (
-              <div key={p.id} className="text-xs text-gray-700 flex justify-between">
+              <div key={p.id} className="text-xs text-body flex justify-between">
                 <span>{p.method} &middot; {p.payment_date}</span>
-                <span className="font-semibold">${p.amount.toFixed(2)}</span>
+                <span className="font-semibold text-ink">${p.amount.toFixed(2)}</span>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </StepCard>
 
       {invoice.status !== "paid" && (
         <div className="mb-3">
           <button
             onClick={handleGetPaymentLink}
             disabled={gettingLink}
-            className="w-full bg-blue-700 disabled:bg-blue-200 text-white rounded-lg py-2.5 text-sm font-semibold"
+            className={`${btnBig} bg-brand-blue`}
           >
             {gettingLink ? "Creating link..." : "Get Stripe payment link"}
           </button>
@@ -313,7 +291,7 @@ export default function InvoiceDetail() {
       <button
         onClick={() => navigate(`/invoices/${id}/payment`)}
         disabled={isPaid}
-        className="w-full bg-green-600 disabled:bg-green-300 text-white rounded-lg py-3 font-medium mb-6"
+        className={`${btnBig} bg-brand-success-dark mb-6`}
       >
         {isPaid ? "Paid in full" : "Receive payment"}
       </button>

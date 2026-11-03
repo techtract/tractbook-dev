@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { createClient } from "@supabase/supabase-js"
 import { supabase } from "../lib/supabase"
 import { Wordmark } from "./ui/Wordmark"
@@ -130,9 +131,10 @@ export default function AutoLock() {
 
   if (!who || !locked) return null
 
-  return (
-    <div role="dialog" aria-modal="true" aria-label="Tractbook is locked" className="fixed inset-0 z-[100] bg-white flex">
-      <div className="m-auto w-full max-w-sm px-6 py-10">
+  // Rendered on <body>, outside #root, so the desktop phone-frame styles do not shrink it.
+  return createPortal(
+    <div role="dialog" aria-modal="true" aria-label="Tractbook is locked" className="fixed inset-0 z-[100] bg-white flex overflow-y-auto">
+      <div className="m-auto w-full max-w-[24rem] px-6 py-10">
         <Wordmark variant="dark" className="mb-8" />
         <h1 className="text-2xl font-bold mb-1">Tractbook is locked</h1>
         <p className="text-body text-sm mb-6">
@@ -163,6 +165,7 @@ export default function AutoLock() {
           {who.hasPassword ? "Sign out" : "Sign in again"}
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

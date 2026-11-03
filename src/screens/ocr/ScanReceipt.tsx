@@ -72,7 +72,9 @@ export default function ScanReceipt() {
   return (
     <div className="min-h-screen flex flex-col px-6 py-6 max-w-sm mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <button onClick={() => navigate(-1)} className="text-2xl text-gray-500">&times;</button>
+        <button type="button" onClick={() => navigate(-1)} aria-label="Close" className="w-10 h-10 -ml-2 flex items-center justify-center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
         <h1 className="text-lg font-bold">Scan receipt</h1>
         <div className="w-6" />
       </div>
@@ -88,9 +90,9 @@ export default function ScanReceipt() {
       <button
         onClick={() => triggerInput(cameraInputRef)}
         disabled={uploading}
-        className="w-full flex items-center gap-3 border border-gray-200 rounded-lg p-3 mb-2.5 text-left disabled:opacity-50"
+        className="w-full flex items-center gap-3 border border-border rounded-2xl p-3.5 mb-3 bg-white text-left disabled:opacity-50"
       >
-        <span className="w-9 h-9 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center text-base">&#128247;</span>
+        <span className="w-10 h-10 rounded-xl bg-[#eef3ff] text-brand-blue flex items-center justify-center shrink-0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg></span>
         <span>
           <span className="block text-sm font-semibold text-gray-900">Camera</span>
           <span className="block text-xs text-gray-500">Take a photo now</span>
@@ -100,9 +102,9 @@ export default function ScanReceipt() {
       <button
         onClick={() => triggerInput(galleryInputRef)}
         disabled={uploading}
-        className="w-full flex items-center gap-3 border border-gray-200 rounded-lg p-3 mb-2.5 text-left disabled:opacity-50"
+        className="w-full flex items-center gap-3 border border-border rounded-2xl p-3.5 mb-3 bg-white text-left disabled:opacity-50"
       >
-        <span className="w-9 h-9 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center text-base">&#128444;&#65039;</span>
+        <span className="w-10 h-10 rounded-xl bg-[#eef3ff] text-brand-blue flex items-center justify-center shrink-0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="1.8" /><path d="M21 16l-5-5-8 9" /></svg></span>
         <span>
           <span className="block text-sm font-semibold text-gray-900">Gallery</span>
           <span className="block text-xs text-gray-500">Choose an existing photo</span>
@@ -112,9 +114,9 @@ export default function ScanReceipt() {
       <button
         onClick={() => triggerInput(browseInputRef)}
         disabled={uploading}
-        className="w-full flex items-center gap-3 border border-gray-200 rounded-lg p-3 mb-2.5 text-left disabled:opacity-50"
+        className="w-full flex items-center gap-3 border border-border rounded-2xl p-3.5 mb-3 bg-white text-left disabled:opacity-50"
       >
-        <span className="w-9 h-9 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center text-base">&#128193;</span>
+        <span className="w-10 h-10 rounded-xl bg-[#eef3ff] text-brand-blue flex items-center justify-center shrink-0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg></span>
         <span>
           <span className="block text-sm font-semibold text-gray-900">Browse files</span>
           <span className="block text-xs text-gray-500">Upload a PDF or image</span>
@@ -123,9 +125,9 @@ export default function ScanReceipt() {
 
       <button
         disabled
-        className="w-full flex items-center gap-3 border border-gray-200 rounded-lg p-3 mb-2.5 text-left opacity-50 cursor-not-allowed"
+        className="w-full flex items-center gap-3 border border-border rounded-2xl p-3.5 mb-3 bg-white text-left opacity-50 cursor-not-allowed"
       >
-        <span className="w-9 h-9 rounded-lg bg-gray-100 text-gray-400 flex items-center justify-center text-base">&#9993;&#65039;</span>
+        <span className="w-10 h-10 rounded-xl bg-[#f2f2f2] text-muted flex items-center justify-center shrink-0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg></span>
         <span>
           <span className="block text-sm font-semibold text-gray-500">Forward an email</span>
           <span className="block text-xs text-gray-400">Coming soon</span>
