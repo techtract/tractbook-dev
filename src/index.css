@@ -103,6 +103,16 @@ h1, h2, h3 {
     #ffffff;
 }
 
+/* Phones: glass screens fill the full width and the visible height (iOS Safari toolbar) */
+@media (max-width: 767px) {
+  .glass-screen,
+  #root > div.glass-screen {
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+  }
+}
+
 
 /* ---- Glass buttons (shared). Inside the components layer so utility classes like mb-3, w-full, min-h-10 still win. ---- */
 @layer components {
