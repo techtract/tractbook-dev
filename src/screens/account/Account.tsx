@@ -3,8 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import { useAccount } from "../../hooks/useAccount"
 import pkg from "../../../package.json"
-import { CONTACT } from "../../config/contact"
-import { buildMailto, diagnosticsText } from "../../lib/mailto"
 
 type Tab = "business" | "general"
 
@@ -219,25 +217,21 @@ export default function Account() {
 
             <div className="mx-5 mt-5 mb-2 text-xs font-bold tracking-wider uppercase text-body">Help &amp; legal</div>
             <div className="mx-5 border border-border rounded-2xl overflow-hidden bg-white">
-              <a className={rowClass} href={buildMailto(CONTACT.support, "Help with Tractbook")}>
-                <span>Help &amp; support</span>
-                <Chevron />
-              </a>
-              <a
-                className={rowClass}
-                href={buildMailto(
-                  CONTACT.support,
-                  "Report an issue",
-                  diagnosticsText({ version: pkg.version, email: acct.email, businessId: acct.businessId || "", path: location.pathname }),
-                )}
-              >
-                <span>Report an issue</span>
-                <Chevron />
-              </a>
-              <a className={rowClass} href={buildMailto(CONTACT.feedback, "Suggestion for Tractbook")}>
-                <span>Share your suggestion</span>
-                <Chevron />
-              </a>
+              {([
+                ["support", "Help & support"],
+                ["issue", "Report an issue"],
+                ["suggestion", "Share your suggestion"],
+              ] as const).map(([kind, label]) => (
+                <button
+                  key={kind}
+                  type="button"
+                  className={rowClass}
+                  onClick={() => navigate(`/account/feedback?type=${kind}`, { state: { from: location.pathname } })}
+                >
+                  <span>{label}</span>
+                  <Chevron />
+                </button>
+              ))}
               <button type="button" className={rowClass} onClick={() => navigate("/account/about")}>
                 <span>About Tractbook</span>
                 <Chevron />

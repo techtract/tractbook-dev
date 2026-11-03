@@ -2,6 +2,7 @@ import Account from "./screens/account/Account"
 import Security from "./screens/account/Security"
 import About from "./screens/account/About"
 import Legal from "./screens/account/Legal"
+import Feedback from "./screens/account/Feedback"
 import Verify2FA from "./screens/auth/Verify2FA"
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -79,6 +80,7 @@ function App() {
         <Route path="/account/security" element={<Security />} />
         <Route path="/account/about" element={<About />} />
         <Route path="/account/legal" element={<Legal />} />
+        <Route path="/account/feedback" element={<Feedback />} />
         <Route path="/coming-soon/:feature" element={<ComingSoon />} />
         <Route path="/customers" element={<CustomersList />} />
         <Route path="/customers/new" element={<AddCustomer />} />
