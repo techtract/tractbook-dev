@@ -7,6 +7,7 @@ import Verify2FA from "./screens/auth/Verify2FA"
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthOnlyRoute from "./components/AuthOnlyRoute";
+import AutoLock from "./components/AutoLock";
 import Welcome from "./screens/onboarding/Welcome";
 import SignUp from "./screens/onboarding/SignUp";
 import SignIn from "./screens/onboarding/SignIn";
@@ -50,6 +51,8 @@ import ReceivePayment from "./screens/sales/ReceivePayment";
 
 function App() {
   return (
+    <>
+    <AutoLock />
     <Routes>
       {/* Public â€” no session required */}
       <Route path="/" element={<Welcome />} />
@@ -111,6 +114,7 @@ function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }
 

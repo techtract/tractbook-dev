@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase"
 import { useAccount } from "../../hooks/useAccount"
 import TimeZoneRow from "../../components/account/TimeZoneRow"
 import AccountantCard from "../../components/account/AccountantCard"
+import { getAutoLockEnabled, setAutoLockEnabled, clearLastActive } from "../../lib/autolock"
 import pkg from "../../../package.json"
 
 type Tab = "business" | "general"
@@ -39,6 +40,7 @@ export default function Account() {
   const [error, setError] = useState<string | null>(null)
   const [signingOut, setSigningOut] = useState(false)
   const [showVersion, setShowVersion] = useState(false)
+  const [autoLock, setAutoLock] = useState(getAutoLockEnabled())
 
   const roleLabel = ROLE_LABEL[acct.role] || (acct.role ? acct.role : "")
   const countryLabel = COUNTRY_LABEL[acct.country] || acct.country
@@ -70,6 +72,7 @@ export default function Account() {
 
   async function signOut() {
     setSigningOut(true)
+    clearLastActive()
     await supabase.auth.signOut()
     navigate("/login", { replace: true })
   }
@@ -218,6 +221,26 @@ export default function Account() {
                 <span>Password, two-step verification and devices</span>
                 <Chevron />
               </button>
+              <div className={rowClass}>
+                <span>
+                  <span className="block">Auto-lock</span>
+                  <span className="block text-xs font-normal text-body mt-0.5">Ask for your password after 2 minutes away</span>
+                </span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={autoLock}
+                  aria-label="Auto-lock"
+                  onClick={() => {
+                    const next = !autoLock
+                    setAutoLock(next)
+                    setAutoLockEnabled(next)
+                  }}
+                  className={`ml-auto shrink-0 w-[52px] h-8 rounded-full relative ${autoLock ? "bg-brand-blue" : "bg-[#b4b4b4]"}`}
+                >
+                  <span className={`absolute top-[3px] w-[26px] h-[26px] rounded-full bg-white transition-all ${autoLock ? "left-[23px]" : "left-[3px]"}`} />
+                </button>
+              </div>
             </div>
 
             <div className="mx-5 mt-5 mb-2 text-xs font-bold tracking-wider uppercase text-body">Help &amp; legal</div>
