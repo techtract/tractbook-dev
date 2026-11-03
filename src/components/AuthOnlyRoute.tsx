@@ -1,14 +1,18 @@
 ﻿import { useEffect, useState } from "react"
-import { Navigate, Outlet } from "react-router-dom"
+import { Navigate, Outlet, useLocation } from "react-router-dom"
 import { supabase } from "../lib/supabase"
+import { needsSecondStep } from "../lib/mfa"
 
 export default function AuthOnlyRoute() {
   const [checking, setChecking] = useState(true)
   const [authenticated, setAuthenticated] = useState(false)
+  const [secondStep, setSecondStep] = useState(false)
+  const location = useLocation()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       setAuthenticated(!!data.session)
+      setSecondStep(data.session ? await needsSecondStep() : false)
       setChecking(false)
     })
 
@@ -31,6 +35,10 @@ export default function AuthOnlyRoute() {
 
   if (!authenticated) {
     return <Navigate to="/login" replace />
+  }
+
+  if (secondStep) {
+    return <Navigate to="/verify-2fa" replace state={{ from: location.pathname, fromState: location.state }} />
   }
 
   return <Outlet />

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import { useAccount } from "../../hooks/useAccount"
 import pkg from "../../../package.json"
@@ -28,6 +28,7 @@ const rowClass =
 
 export default function Account() {
   const navigate = useNavigate()
+  const location = useLocation()
   const acct = useAccount()
   const [tab, setTab] = useState<Tab>("business")
   const [editing, setEditing] = useState(false)
@@ -74,7 +75,7 @@ export default function Account() {
     <div className="h-screen flex flex-col max-w-sm mx-auto overflow-hidden">
       <div className="flex-1 overflow-y-auto pb-6">
         <div className="flex items-center gap-1 pt-5 pr-3 pl-2">
-          <button type="button" onClick={() => navigate(-1)} aria-label="Back" className="w-11 h-11 flex items-center justify-center">
+          <button type="button" onClick={() => navigate(((location.state as { from?: string } | null)?.from) || "/dashboard")} aria-label="Back" className="w-11 h-11 flex items-center justify-center">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M15 6l-6 6 6 6" />
             </svg>
@@ -87,7 +88,19 @@ export default function Account() {
             {acct.initials}
           </div>
           <div className="min-w-0 flex-1">
+            {acct.loading && <div className="text-sm text-body">Loading your details...</div>}
+            {acct.failed && (
+              <div role="alert" className="text-sm text-body">
+                Couldn't load your details.{" "}
+                <button type="button" onClick={acct.reload} className="font-semibold text-brand-blue underline">Try again</button>
+              </div>
+            )}
             <div className="font-wordmark font-extrabold text-lg truncate">{acct.fullName}</div>
+            {!acct.hasName && !acct.loading && (
+              <button type="button" onClick={() => { setTab("general"); startEdit() }} className="text-[13px] font-semibold text-brand-blue underline mt-0.5">
+                Add your full name
+              </button>
+            )}
             <div className="text-[13px] text-body truncate">{acct.email}</div>
             {roleLabel && (
               <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-[#eef3ff] text-brand-blue-dark text-xs font-semibold">
@@ -195,6 +208,14 @@ export default function Account() {
                 <span>App version</span>
                 <span className="ml-auto text-sm font-normal text-body">{pkg.version}</span>
               </div>
+            </div>
+
+            <div className="mx-5 mt-5 mb-2 text-xs font-bold tracking-wider uppercase text-body">Security</div>
+            <div className="mx-5 border border-border rounded-2xl overflow-hidden bg-white">
+              <button type="button" className={rowClass} onClick={() => navigate("/account/security")}>
+                <span>Password, two-step verification and devices</span>
+                <Chevron />
+              </button>
             </div>
           </>
         )}

@@ -1,11 +1,14 @@
 ﻿import { useEffect, useState } from "react"
-import { Navigate, Outlet } from "react-router-dom"
+import { Navigate, Outlet, useLocation } from "react-router-dom"
 import { supabase } from "../lib/supabase"
+import { needsSecondStep } from "../lib/mfa"
 
 export default function ProtectedRoute() {
   const [checking, setChecking] = useState(true)
   const [authenticated, setAuthenticated] = useState(false)
   const [onboarded, setOnboarded] = useState(false)
+  const [secondStep, setSecondStep] = useState(false)
+  const location = useLocation()
 
   useEffect(() => {
     checkAccess()
@@ -36,6 +39,7 @@ export default function ProtectedRoute() {
     }
 
     setAuthenticated(true)
+    setSecondStep(await needsSecondStep())
 
     const { data: membership } = await supabase
       .from("business_members")
@@ -59,6 +63,10 @@ export default function ProtectedRoute() {
 
   if (!authenticated) {
     return <Navigate to="/login" replace />
+  }
+
+  if (secondStep) {
+    return <Navigate to="/verify-2fa" replace state={{ from: location.pathname, fromState: location.state }} />
   }
 
   if (!onboarded) {

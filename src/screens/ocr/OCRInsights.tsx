@@ -1,4 +1,5 @@
-﻿import { useEffect, useRef, useState } from "react"
+import AppHeader from "../../components/AppHeader"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Chart, DoughnutController, BarController, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip } from "chart.js"
 import { supabase } from "../../lib/supabase"
@@ -157,17 +158,7 @@ export default function OCRInsights() {
 
   return (
     <div className="min-h-screen flex flex-col px-6 py-6 max-w-sm mx-auto">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">tractbook</h1>
-        <div className="flex items-center gap-3">
-          <button className="w-7 h-7 rounded-lg bg-gray-100 text-gray-700 text-lg font-bold flex items-center justify-center">
-            &#8942;
-          </button>
-          <div className="w-8 h-8 rounded-full bg-blue-700 text-white text-xs font-semibold flex items-center justify-center">
-            JS
-          </div>
-        </div>
-      </div>
+      <AppHeader />
 
       <div className="flex gap-1 mb-4 border-b border-gray-200 overflow-x-auto">
         <button onClick={() => navigate("/ocr")} className="shrink-0 px-3 text-center py-2 text-xs font-semibold text-gray-500">

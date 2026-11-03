@@ -16,11 +16,16 @@ function makeBuilder(opts: any = {}) {
 
 let membershipBuilder: any
 let getSessionMock: any
+let aalMock: any = () =>
+  Promise.resolve({ data: { currentLevel: "aal1", nextLevel: "aal1" }, error: null })
 
 vi.mock("../lib/supabase", () => ({
   supabase: {
     auth: {
       getSession: vi.fn((...args: any[]) => getSessionMock(...args)),
+      mfa: {
+        getAuthenticatorAssuranceLevel: vi.fn((...args: any[]) => aalMock(...args)),
+      },
       onAuthStateChange: vi.fn(() => ({
         data: { subscription: { unsubscribe: vi.fn() } },
       })),
@@ -46,6 +51,35 @@ function renderGuardedApp(startPath: string) {
 describe("ProtectedRoute - session + onboarding guard", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  it("with a session and two-step on but no code entered: redirects to /verify-2fa", async () => {
+    getSessionMock = vi.fn(() =>
+      Promise.resolve({ data: { session: { user: { id: "user-1" } } } })
+    )
+    aalMock = () =>
+      Promise.resolve({ data: { currentLevel: "aal1", nextLevel: "aal2" }, error: null })
+    membershipBuilder = makeBuilder({
+      maybeSingleResponse: { data: { business_id: "b1" }, error: null },
+    })
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard"]}>
+        <Routes>
+          <Route path="/verify-2fa" element={<div>VERIFY 2FA PAGE</div>} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<div>DASHBOARD PAGE</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText("VERIFY 2FA PAGE")).toBeInTheDocument()
+    })
+    expect(screen.queryByText("DASHBOARD PAGE")).not.toBeInTheDocument()
+    aalMock = () =>
+      Promise.resolve({ data: { currentLevel: "aal1", nextLevel: "aal1" }, error: null })
   })
 
   it("with NO session: redirects to /login", async () => {

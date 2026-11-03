@@ -1,8 +1,9 @@
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useAccount } from "../hooks/useAccount"
 
 export default function AppHeader() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { initials, fullName, loading } = useAccount()
 
   return (
@@ -13,7 +14,7 @@ export default function AppHeader() {
       </div>
       <button
         type="button"
-        onClick={() => navigate("/account")}
+        onClick={() => navigate("/account", { state: { from: location.pathname } })}
         aria-label={fullName ? `Open account for ${fullName}` : "Open account"}
         className="w-11 h-11 rounded-full bg-brand-blue text-white text-sm font-semibold flex items-center justify-center ring-2 ring-brand-blue-light"
       >

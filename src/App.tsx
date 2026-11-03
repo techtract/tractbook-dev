@@ -1,4 +1,6 @@
 import Account from "./screens/account/Account"
+import Security from "./screens/account/Security"
+import Verify2FA from "./screens/auth/Verify2FA"
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthOnlyRoute from "./components/AuthOnlyRoute";
@@ -16,7 +18,7 @@ import TaxDetails from "./screens/onboarding/TaxDetails";
 import Industry from "./screens/onboarding/Industry";
 import BusinessContext from "./screens/onboarding/BusinessContext";
 import InviteAccountant from "./screens/onboarding/InviteAccountant";
-import Dashboard from "./screens/onboarding/Dashboard";
+import Dashboard from "./screens/dashboard/Dashboard";
 import ComingSoon from "./screens/onboarding/ComingSoon";
 import AuthCallback from "./screens/onboarding/AuthCallback";
 import CustomersList from "./screens/sales/CustomersList";
@@ -53,6 +55,7 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/verify-2fa" element={<Verify2FA />} />
 
       {/* Auth-only â€” onboarding flow, reachable BEFORE a business exists */}
       <Route element={<AuthOnlyRoute />}>
@@ -71,6 +74,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/account/security" element={<Security />} />
         <Route path="/coming-soon/:feature" element={<ComingSoon />} />
         <Route path="/customers" element={<CustomersList />} />
         <Route path="/customers/new" element={<AddCustomer />} />
