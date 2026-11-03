@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { makeInitials } from "./useAccount"
+import { makeInitials } from "./initials"
 
 describe("makeInitials", () => {
   it("uses first and last name", () => expect(makeInitials("Rakesh Chandra", "a@b.com")).toBe("RC"))

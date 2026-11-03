@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../lib/supabase"
+import { makeInitials } from "../lib/initials"
 
 export interface AccountInfo {
   loading: boolean
@@ -23,13 +24,6 @@ const EMPTY: AccountInfo = {
   businessId: null,
   businessName: "",
   country: "",
-}
-
-export function makeInitials(name: string, email: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  return (email[0] || "?").toUpperCase()
 }
 
 // Reads everything from the live session + database, so an account created
