@@ -42,11 +42,10 @@ export default function Dashboard() {
   const [setupFacts, setSetupFacts] = useState<SetupFacts | null>(null)
 
   const account = useAccount()
+  // Only greet by name when we really have one. The email prefix ("hr", "info") is not a name.
   const fullName =
     [state.firstName, state.lastName].filter(Boolean).join(" ") ||
-    account.fullName ||
-    state.email?.split("@")[0] ||
-    ""
+    (account.hasName ? account.fullName : "")
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening"
@@ -129,7 +128,7 @@ export default function Dashboard() {
 
         {/* Greeting */}
         <h1 className="text-2xl font-bold mb-1">
-          {greeting}{fullName ? `, ${fullName.split(" ")[0]}` : ""} !
+          {greeting}{fullName ? `, ${fullName.split(" ")[0]}` : ""}!
         </h1>
         <p className="text-body text-sm mb-6">{subtext}</p>
 
@@ -185,27 +184,36 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 gap-3 mb-8">
           <div className="border border-border rounded-2xl p-4">
             <span className="text-brand-blue"><Svg><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M4 12h16" /></Svg></span>
-            <p className="text-sm text-gray-500 mt-3">Documents scanned</p>
+            <p className="text-sm text-body mt-3">Documents scanned</p>
             <p className="text-lg font-bold text-gray-900">{scannedCount}</p>
           </div>
           <div className="border border-border rounded-2xl p-4">
             <span className="text-brand-blue"><Svg><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5M9 13h6M9 17h4" /></Svg></span>
-            <p className="text-sm text-gray-500 mt-3">Total invoices</p>
+            <p className="text-sm text-body mt-3">Total invoices</p>
             <p className="text-lg font-bold text-gray-900">{totalInvoices}</p>
           </div>
         </div>
 
         {/* Invoice payment status */}
         <h2 className="text-lg mb-1">Invoice status</h2>
-        <p className="text-sm text-gray-500 mb-3">Paid vs. unpaid invoices.</p>
+        <p className="text-sm text-body mb-3">Paid vs. unpaid invoices.</p>
         {totalInvoices === 0 ? (
-          <p className="text-sm text-gray-400 mb-8">No invoices yet.</p>
+          <div className="mb-8">
+            <p className="text-sm text-body mb-3">No invoices yet.</p>
+            <button
+              type="button"
+              onClick={() => navigate("/invoices/new")}
+              className="min-h-11 px-5 rounded-full border-[1.5px] border-brand-blue text-brand-blue font-semibold text-sm bg-white"
+            >
+              Create your first invoice
+            </button>
+          </div>
         ) : (
           <div className="mb-8 space-y-3">
             <div>
               <div className="flex justify-between text-xs mb-1">
                 <span className="font-semibold text-brand-success-dark">Paid</span>
-                <span className="text-gray-500">{paidCount}</span>
+                <span className="text-body">{paidCount}</span>
               </div>
               <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
                 <div className="h-full bg-brand-success rounded-full" style={{ width: `${paidPct}%` }} />
@@ -213,8 +221,8 @@ export default function Dashboard() {
             </div>
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="font-semibold text-gray-600">Unpaid</span>
-                <span className="text-gray-500">{unpaidCount}</span>
+                <span className="font-semibold text-body">Unpaid</span>
+                <span className="text-body">{unpaidCount}</span>
               </div>
               <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
                 <div className="h-full bg-[#9ca3af] rounded-full" style={{ width: `${unpaidPct}%` }} />
@@ -223,19 +231,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Profit & loss */}
-        <h2 className="text-lg mb-1">Profit &amp; loss</h2>
-        <p className="text-sm text-gray-500 mb-3">
-          Income and expenses from the past 12 months.
-        </p>
-        <div className="flex gap-4 text-sm">
-          <span className="flex items-center gap-1 text-green-600">
-            <span className="w-2 h-2 rounded-full bg-green-500" /> Income
-          </span>
-          <span className="flex items-center gap-1 text-purple-600">
-            <span className="w-2 h-2 rounded-full bg-purple-500" /> Expense
-          </span>
-        </div>
+        {/* Profit & loss is hidden until the real chart is built (it was only a legend with no data) */}
       </div>
 
       <BottomNav active="dashboard" />

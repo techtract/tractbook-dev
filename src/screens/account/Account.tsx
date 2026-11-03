@@ -95,13 +95,13 @@ export default function Account() {
                 <button type="button" onClick={acct.reload} className="font-semibold text-brand-blue underline">Try again</button>
               </div>
             )}
-            <div className="font-wordmark font-extrabold text-lg truncate">{acct.fullName}</div>
+            <div className="font-wordmark font-extrabold text-lg truncate">{acct.hasName ? acct.fullName : acct.email}</div>
             {!acct.hasName && !acct.loading && (
               <button type="button" onClick={() => { setTab("general"); startEdit() }} className="text-[13px] font-semibold text-brand-blue underline mt-0.5">
                 Add your full name
               </button>
             )}
-            <div className="text-[13px] text-body truncate">{acct.email}</div>
+            {acct.hasName && <div className="text-[13px] text-body truncate">{acct.email}</div>}
             {roleLabel && (
               <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-[#eef3ff] text-brand-blue-dark text-xs font-semibold">
                 {roleLabel}
