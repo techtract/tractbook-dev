@@ -1,4 +1,5 @@
-﻿import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
+import { Wordmark } from "../../components/ui/Wordmark"
 import { useNavigate, useLocation } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -135,6 +136,7 @@ export default function VerifyCode() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-10 max-w-sm mx-auto">
+      <Wordmark variant="dark" className="mb-8" />
       <h1 className="text-2xl font-bold mb-1">Enter verification code</h1>
       <p className="text-gray-500 text-sm mb-1">
         We sent a six digit code to{" "}

@@ -1,4 +1,6 @@
-﻿interface StepProgressProps {
+import { Wordmark } from "../../components/ui/Wordmark"
+
+interface StepProgressProps {
   current: number
   total: number
 }
@@ -6,6 +8,7 @@
 export default function StepProgress({ current, total }: StepProgressProps) {
   return (
     <div className="mb-6">
+      <Wordmark variant="dark" className="mb-6" />
       <div className="flex gap-1.5 mb-2">
         {Array.from({ length: total }).map((_, i) => {
           const stepNumber = i + 1

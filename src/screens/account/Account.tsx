@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import { useAccount } from "../../hooks/useAccount"
 import pkg from "../../../package.json"
+import { CONTACT } from "../../config/contact"
+import { buildMailto, diagnosticsText } from "../../lib/mailto"
 
 type Tab = "business" | "general"
 
@@ -36,6 +38,7 @@ export default function Account() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [signingOut, setSigningOut] = useState(false)
+  const [showVersion, setShowVersion] = useState(false)
 
   const roleLabel = ROLE_LABEL[acct.role] || (acct.role ? acct.role : "")
   const countryLabel = COUNTRY_LABEL[acct.country] || acct.country
@@ -204,10 +207,6 @@ export default function Account() {
                   <span className="ml-auto text-sm font-normal text-body">{roleLabel}</span>
                 </div>
               )}
-              <div className={rowClass}>
-                <span>App version</span>
-                <span className="ml-auto text-sm font-normal text-body">{pkg.version}</span>
-              </div>
             </div>
 
             <div className="mx-5 mt-5 mb-2 text-xs font-bold tracking-wider uppercase text-body">Security</div>
@@ -216,6 +215,56 @@ export default function Account() {
                 <span>Password, two-step verification and devices</span>
                 <Chevron />
               </button>
+            </div>
+
+            <div className="mx-5 mt-5 mb-2 text-xs font-bold tracking-wider uppercase text-body">Help &amp; legal</div>
+            <div className="mx-5 border border-border rounded-2xl overflow-hidden bg-white">
+              <a className={rowClass} href={buildMailto(CONTACT.support, "Help with Tractbook")}>
+                <span>Help &amp; support</span>
+                <Chevron />
+              </a>
+              <a
+                className={rowClass}
+                href={buildMailto(
+                  CONTACT.support,
+                  "Report an issue",
+                  diagnosticsText({ version: pkg.version, email: acct.email, businessId: acct.businessId || "", path: location.pathname }),
+                )}
+              >
+                <span>Report an issue</span>
+                <Chevron />
+              </a>
+              <a className={rowClass} href={buildMailto(CONTACT.feedback, "Suggestion for Tractbook")}>
+                <span>Share your suggestion</span>
+                <Chevron />
+              </a>
+              <button type="button" className={rowClass} onClick={() => navigate("/account/about")}>
+                <span>About Tractbook</span>
+                <Chevron />
+              </button>
+              <button type="button" className={rowClass} onClick={() => navigate("/account/legal")}>
+                <span>Terms and policies</span>
+                <Chevron />
+              </button>
+              <div className={rowClass}>
+                <span>App version</span>
+                <button
+                  type="button"
+                  aria-label="About this version"
+                  aria-expanded={showVersion}
+                  onClick={() => setShowVersion((v) => !v)}
+                  className="w-6 h-6 rounded-full border border-body text-body text-xs font-bold flex items-center justify-center"
+                >
+                  i
+                </button>
+                <span className="ml-auto text-sm font-normal text-body">{pkg.version}</span>
+              </div>
+              {showVersion && (
+                <div className="px-4 py-3 text-[13px] text-body bg-[#fafafa] border-t border-border">
+                  You are on Tractbook version {pkg.version}. If something looks wrong, tell us this number when you
+                  report an issue. Updates arrive automatically, so you always have the latest version.
+                </div>
+              )}
             </div>
           </>
         )}

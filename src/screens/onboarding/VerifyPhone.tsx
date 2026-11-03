@@ -1,4 +1,5 @@
-﻿import { useState } from "react"
+import { useState } from "react"
+import { Wordmark } from "../../components/ui/Wordmark"
 import { useNavigate, useLocation } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 
@@ -90,6 +91,7 @@ export default function VerifyPhone() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-10 max-w-sm mx-auto">
+      <Wordmark variant="dark" className="mb-8" />
       <h1 className="text-2xl font-bold mb-1">Keep your account secure</h1>
       <p className="text-gray-500 text-sm mb-8">
         Enter your number and we'll send a code to secure your account. No spam.
