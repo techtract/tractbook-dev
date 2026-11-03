@@ -42,11 +42,20 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ received: true, note: "already processed" }), { status: 200 })
   }
 
-  await supabaseAdmin.from("stripe_webhook_events").insert({
-    stripe_event_id: event.id,
-    event_type: event.type,
-    raw_payload: event,
-  })
+  // Record the event only AFTER it has been handled successfully. If settlement fails we
+  // return 500 without recording, so Stripe's retry is processed again instead of being
+  // skipped as "already processed" (which would silently lose the payment).
+  const recordEvent = async () => {
+    const { error } = await supabaseAdmin.from("stripe_webhook_events").insert({
+      stripe_event_id: event.id,
+      event_type: event.type,
+      raw_payload: event,
+    })
+    // 23505 = unique violation: a concurrent delivery already recorded it, which is fine
+    if (error && error.code !== "23505") {
+      console.log("Could not record webhook event:", error.message)
+    }
+  }
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as any
@@ -54,7 +63,15 @@ Deno.serve(async (req) => {
 
     if (!invoiceId) {
       console.log("checkout.session.completed with no invoice_id in metadata:", session.id)
+      await recordEvent()
       return new Response(JSON.stringify({ received: true, note: "no invoice_id" }), { status: 200 })
+    }
+
+    // Only settle when Stripe says the money has actually been collected
+    if (session.payment_status !== "paid") {
+      console.log("checkout.session.completed but not paid yet:", session.id, session.payment_status)
+      await recordEvent()
+      return new Response(JSON.stringify({ received: true, note: "not paid" }), { status: 200 })
     }
 
     const amount = (session.amount_total || 0) / 100
@@ -99,5 +116,6 @@ Deno.serve(async (req) => {
     }
   }
 
+  await recordEvent()
   return new Response(JSON.stringify({ received: true }), { status: 200 })
 })

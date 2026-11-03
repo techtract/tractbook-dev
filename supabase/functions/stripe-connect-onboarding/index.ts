@@ -56,24 +56,10 @@ Deno.serve(async (req) => {
 
     const businessId = membership.business_id
 
-    const svcKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
-    console.log("SERVICE_ROLE_KEY present:", !!svcKey, "length:", svcKey?.length || 0)
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
-
-    // TEMP diagnostic: raw fetch to PostgREST, bypassing the JS SDK entirely
-    const rawTest = await fetch(
-      `${Deno.env.get("SUPABASE_URL")}/rest/v1/businesses?id=eq.${businessId}&select=id,name`,
-      {
-        headers: {
-          apikey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-          Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!}`,
-        },
-      }
-    )
-    const rawTestBody = await rawTest.text()
 
     const { data: business } = await supabaseAdmin
       .from("businesses")
@@ -82,23 +68,7 @@ Deno.serve(async (req) => {
       .maybeSingle()
 
     if (!business) {
-      return new Response(JSON.stringify({ error: "Business not found", debug: {
-          svcKeyPresent: !!svcKey,
-          svcKeyLength: svcKey?.length || 0,
-          svcKeyPreview: svcKey ? svcKey.slice(0, 10) : null,
-          secretKeysRaw: Deno.env.get("SUPABASE_SECRET_KEYS") ? "present" : "absent",
-          secretKeysShape: (() => {
-            try {
-              const parsed = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}")
-              return Object.keys(parsed)
-            } catch {
-              return "not valid JSON"
-            }
-          })(),
-          rawTestStatus: rawTest.status,
-          rawTestBody,
-          businessId,
-        } }), {
+      return new Response(JSON.stringify({ error: "Business not found" }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       })
