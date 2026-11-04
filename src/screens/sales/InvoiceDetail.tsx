@@ -159,6 +159,10 @@ export default function InvoiceDetail() {
 
   async function handleDelete() {
     if (!id || invoice?.status !== "draft") return
+    if (payments.length > 0) {
+      setActionError("This draft has payments recorded, so it can't be deleted.")
+      return
+    }
     if (!confirm("Delete this invoice? This cannot be undone.")) return
     setDeleting(true)
     const { error: delError } = await supabase.from("invoices").delete().eq("id", id)
@@ -247,7 +251,7 @@ export default function InvoiceDetail() {
       {showActions && (
         <div className="border border-gray-200 rounded-lg mb-4 divide-y divide-gray-100 text-sm">
           <button onClick={() => navigate(`/invoices/${id}/print`)} className="w-full text-left px-4 py-2.5">Export as PDF / Print</button>
-          {isDraft && (
+          {isDraft && payments.length === 0 && (
             <button
               onClick={handleDelete}
               disabled={deleting}
@@ -315,7 +319,7 @@ export default function InvoiceDetail() {
 
       {isVoid && (
         <div className="bg-gray-100 border border-gray-200 rounded-lg px-3 py-2.5 text-xs text-gray-700 mb-4">
-          <b>Void.</b> {invoice.void_reason ? `Reason: ${invoice.void_reason}` : ""} This invoice is kept on record but is not counted in your totals.
+          <b>Void.</b> {invoice.void_reason ? `Reason: ${invoice.void_reason}. ` : ""}This invoice is kept on record but is not counted in your totals.
         </div>
       )}
 
@@ -388,7 +392,7 @@ export default function InvoiceDetail() {
         )}
       </StepCard>
 
-      {invoice.status !== "paid" && !isVoid && (
+      {invoice.status !== "paid" && !isVoid && !isDraft && (
         <div className="mb-3">
           <button
             onClick={handleGetPaymentLink}
@@ -402,7 +406,7 @@ export default function InvoiceDetail() {
           )}
         </div>
       )}
-      {!isVoid && (
+      {!isVoid && !isDraft && (
         <button
           onClick={() => navigate(`/invoices/${id}/payment`)}
           disabled={isPaid}
