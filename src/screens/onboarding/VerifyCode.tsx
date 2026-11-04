@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { Wordmark } from "../../components/ui/Wordmark"
 import { useNavigate, useLocation } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
+import { canSkipPhoneVerification, isTeamTestUser, signedInWithGoogle } from "../../lib/phoneSkip"
 
 const CODE_LENGTH = 6
 const RESEND_SECONDS = 45
@@ -13,18 +14,6 @@ interface IncomingState {
   businessId?: string
   businessName?: string
   email?: string
-}
-
-const TEAM_TEST_EMAILS = [
-  "rakeshchandra.chandra21@gmail.com",
-  "kloroncanada@gmail.com",
-]
-
-function isAllowedTestUser(email?: string): boolean {
-  if (!email) return false
-  const normalized = email.toLowerCase()
-  if (normalized.endsWith("@nxtwave.ca")) return true
-  return TEAM_TEST_EMAILS.includes(normalized)
 }
 
 export default function VerifyCode() {
@@ -39,7 +28,16 @@ export default function VerifyCode() {
   const [error, setError] = useState<string | null>(null)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
-  const showSkip = import.meta.env.DEV || isAllowedTestUser(incoming.email)
+  const [googleUser, setGoogleUser] = useState(false)
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setGoogleUser(signedInWithGoogle(data.user)))
+  }, [])
+  const showSkip = canSkipPhoneVerification({
+    email: incoming.email,
+    user: googleUser ? { app_metadata: { provider: "google" } } : null,
+    isDev: import.meta.env.DEV,
+  })
+  const isTeamSkip = import.meta.env.DEV || isTeamTestUser(incoming.email)
 
   useEffect(() => {
     if (secondsLeft <= 0) return
@@ -187,7 +185,7 @@ export default function VerifyCode() {
           onClick={handleDevSkip}
           className="text-gray-400 text-xs underline mb-6"
         >
-          Skip for now (test mode)
+          {isTeamSkip ? "Skip for now (test mode)" : "Skip for now"}
         </button>
       )}
 
