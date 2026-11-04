@@ -167,3 +167,18 @@ button:not(:disabled) { transition: transform 0.12s ease, background-color 0.12s
 button:not(:disabled):active { transform: scale(0.96); }
 button.no-press:active { transform: none; }
 .row-press:active { background-color: #f1f4ff; }
+
+/* Printing: drop the desktop phone frame so a short document stays on one page */
+@media print {
+  html, body, #root { height: auto !important; }
+  body { display: block !important; padding: 0 !important; background: #fff !important; }
+  #root > div {
+    min-height: 0 !important;
+    max-height: none !important;
+    width: auto !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}

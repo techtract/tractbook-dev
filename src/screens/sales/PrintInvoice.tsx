@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
+import { Wordmark } from "../../components/ui/Wordmark"
 import { supabase } from "../../lib/supabase"
 
 const CANADA_TAX_RATES: Record<string, { label: string; rate: number }> = {
@@ -160,16 +161,16 @@ export default function PrintInvoice() {
                 )}
               </td>
               <td style={{ padding: 6, textAlign: "center" }}>{it.quantity}</td>
-              <td style={{ padding: 6, textAlign: "center" }}>${it.unit_price}</td>
+              <td style={{ padding: 6, textAlign: "center" }}>${Number(it.unit_price).toFixed(2)}</td>
               <td style={{ padding: 6, textAlign: "right" }}>${(Number(it.quantity) * Number(it.unit_price)).toFixed(2)}</td>
             </tr>
           ))}
         </tbody>
       </table>
       <div style={{ textAlign: "right", marginTop: 16, fontSize: 13 }}>
-        <p>Subtotal: ${invoice.subtotal}</p>
-        <p>{taxLabel}: ${invoice.tax_total}</p>
-        <p style={{ fontWeight: 700, fontSize: 16 }}>Total: ${invoice.total} {invoice.currency}</p>
+        <p>Subtotal: ${Number(invoice.subtotal).toFixed(2)}</p>
+        <p>{taxLabel}: ${Number(invoice.tax_total).toFixed(2)}</p>
+        <p style={{ fontWeight: 700, fontSize: 16 }}>Total: ${Number(invoice.total).toFixed(2)} {invoice.currency}</p>
         {paidTotal > 0 && (
           <>
             <p style={{ color: "#4fb33f" }}>Paid: ${paidTotal.toFixed(2)}</p>
@@ -185,17 +186,16 @@ export default function PrintInvoice() {
           <p style={{ fontSize: 13, color: "#333", whiteSpace: "pre-wrap" }}>{invoice.notes}</p>
         </div>
       )}
-      <div style={{ textAlign: "center", marginTop: 40, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-        <span style={{ color: "#111", fontSize: 12, fontWeight: 700 }}>Powered by</span>
-        <img src="/tractbook-logo.svg" alt="" style={{ height: 14, width: 14 }} />
-        <span style={{ color: "#111", fontSize: 12, fontWeight: 700 }}>tractbook</span>
+      <div style={{ textAlign: "center", marginTop: 40, display: "flex", alignItems: "baseline", justifyContent: "center", gap: 10 }}>
+        <span style={{ color: "#111", fontSize: 16, fontWeight: 700 }}>Powered by</span>
+        <Wordmark variant="dark" className="h-7!" />
       </div>
       <div style={{ textAlign: "center", marginTop: 24 }} className="no-print">
         <button onClick={() => window.print()} style={{ background: "#002DF8", color: "white", padding: "10px 20px", borderRadius: 8, border: "none", fontWeight: 600 }}>
           Print / Save as PDF
         </button>
       </div>
-      <style>{`@media print { .no-print { display: none; } }`}</style>
+      <style>{`@media print { .no-print { display: none; } html, body { background: #fff !important; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }`}</style>
     </div>
   )
 }
