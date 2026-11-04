@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
 
     const { data: business } = await admin
       .from("businesses")
-      .select("name, street1, city, region, country, phone, tax_registration_number")
+      .select("name, street1, city, region, country, phone, tax_registration_number, logo_url")
       .eq("id", doc.business_id)
       .maybeSingle()
 

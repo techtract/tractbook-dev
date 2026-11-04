@@ -95,6 +95,7 @@ export default function CreateInvoice() {
 
   const [businessId, setBusinessId] = useState<string | null>(null)
   const [businessName, setBusinessName] = useState<string>("")
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const [businessCountry, setBusinessCountry] = useState<string>("US")
   const [businessProvince, setBusinessProvince] = useState<string | null>(null)
   const [invoiceNumber, setInvoiceNumber] = useState("INV-0001")
@@ -149,12 +150,13 @@ export default function CreateInvoice() {
 
     const { data: business } = await supabase
       .from("businesses")
-      .select("name, region, country")
+      .select("name, region, country, logo_url")
       .eq("id", membership.business_id)
       .maybeSingle()
 
     if (business) {
       setBusinessName(business.name || "")
+      setLogoUrl(business.logo_url || null)
       setBusinessCountry(business.country || "US")
       setBusinessProvince(business.region || null)
       if (business.country === "CA" && !isEditing && !prefill.prefillCurrency) {
@@ -436,10 +438,16 @@ export default function CreateInvoice() {
         </div>
       )}
 
-      <button className="w-full border border-dashed border-gray-300 rounded-xl py-4 text-center mb-1">
-        <span className="text-blue-700 text-sm font-semibold">+ Add logo</span>
-        <p className="text-gray-400 text-xs mt-0.5">Max size 1MB</p>
-      </button>
+      {logoUrl ? (
+        <div className="border border-gray-200 rounded-xl p-3 mb-1">
+          <img src={logoUrl} alt="Business logo" className="h-12 max-w-[60%] object-contain" />
+        </div>
+      ) : (
+        <button onClick={() => navigate("/business")} className="w-full border border-dashed border-gray-300 rounded-xl py-4 text-center mb-1">
+          <span className="text-blue-700 text-sm font-semibold">+ Add logo</span>
+          <p className="text-gray-400 text-xs mt-0.5">Set it once in Business details</p>
+        </button>
+      )}
 
       <div className="mb-5">
         <p className="text-sm font-semibold text-gray-900">

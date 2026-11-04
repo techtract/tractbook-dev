@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
+import LogoPicker from "../../components/sales/LogoPicker"
 import { isValidGstHst, normalizeGstHst } from "../../lib/taxNumber"
 
 const CANADIAN_PROVINCES = [
@@ -48,6 +49,7 @@ export default function EditBusiness() {
   const [region, setRegion] = useState("")
   const [businessNumber, setBusinessNumber] = useState("")
   const [taxRegNumber, setTaxRegNumber] = useState("")
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
 
   const [street1, setStreet1] = useState("")
   const [street2, setStreet2] = useState("")
@@ -115,6 +117,7 @@ export default function EditBusiness() {
     setRegion(business.region || "")
     setBusinessNumber(business.business_number || "")
     setTaxRegNumber(business.tax_registration_number || "")
+    setLogoUrl(business.logo_url || null)
     setStreet1(business.street1 || "")
     setStreet2(business.street2 || "")
     setCity(business.city || "")
@@ -229,10 +232,7 @@ export default function EditBusiness() {
         </button>
       </div>
 
-      <button className="w-full border border-dashed border-gray-300 rounded-xl py-4 text-center mb-5">
-        <span className="text-blue-700 text-sm font-semibold">+ Add logo</span>
-        <p className="text-gray-400 text-xs mt-0.5">Max size 1MB</p>
-      </button>
+      <LogoPicker businessId={businessId} logoUrl={logoUrl} onChange={setLogoUrl} />
 
       <label className="block text-xs font-medium text-gray-500 mb-1">Business name</label>
       <input

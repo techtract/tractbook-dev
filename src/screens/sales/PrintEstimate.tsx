@@ -93,7 +93,13 @@ export default function PrintEstimate({ data }: { data?: PrintEstimateData } = {
           DRAFT
         </div>
       )}
-      <div style={{ textAlign: "right", marginBottom: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 24 }}>
+        <div style={{ flex: 1 }}>
+          {business?.logo_url && (
+            <img src={business.logo_url} alt="" style={{ maxHeight: 64, maxWidth: 180, objectFit: "contain" }} />
+          )}
+        </div>
+        <div style={{ textAlign: "right" }}>
         <h1 style={{ fontSize: 22, margin: 0 }}>ESTIMATE</h1>
         <p style={{ fontSize: 13, color: "#555" }}>
           <b>{business?.name}</b><br />
@@ -103,6 +109,7 @@ export default function PrintEstimate({ data }: { data?: PrintEstimateData } = {
           {business?.phone && <><br />Phone: {business.phone}</>}
           {business?.tax_registration_number && <><br />GST/HST No. {formatGstHst(business.tax_registration_number)}</>}
         </p>
+        </div>
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", gap: 24, marginBottom: 24 }}>
