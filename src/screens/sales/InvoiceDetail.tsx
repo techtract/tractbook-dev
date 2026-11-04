@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { StepCard, StepTitle, UpgradeNote, BackArrow, MoreButton, btnPrimary, btnSoft, btnOutline, btnBig } from "../../components/sales/StepCard"
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
+import { invoiceBadge } from "../../lib/documentStatus"
 
 interface ActivityRow {
   id: string
@@ -24,6 +25,8 @@ export default function InvoiceDetail() {
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const [markingSent, setMarkingSent] = useState(false)
   const [invoice, setInvoice] = useState<any>(null)
   const [customerName, setCustomerName] = useState("")
   const [activity, setActivity] = useState<ActivityRow[]>([])
@@ -100,8 +103,19 @@ export default function InvoiceDetail() {
   }
 
   async function handleMarkSent() {
-    if (!id) return
-    await supabase.from("invoices").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", id)
+    if (!id || markingSent) return
+    setMarkingSent(true)
+    setActionError(null)
+    const { data: updated, error: updError } = await supabase
+      .from("invoices")
+      .update({ status: "sent", sent_at: new Date().toISOString() })
+      .eq("id", id)
+      .select("id")
+    setMarkingSent(false)
+    if (updError || !updated || updated.length === 0) {
+      setActionError(updError?.message || "Could not mark this invoice as sent. Please try again.")
+      return
+    }
     await logActivity("Sent", "Marked as sent")
     loadInvoice()
   }
@@ -174,6 +188,7 @@ export default function InvoiceDetail() {
     )
   }
 
+  const badge = invoiceBadge(invoice.status, invoice.due_date)
   const isDraft = invoice.status === "draft"
   const isPaid = invoice.status === "paid"
   const isSent = invoice.status === "sent" || invoice.status === "paid" || !!invoice.sent_at
@@ -186,7 +201,7 @@ export default function InvoiceDetail() {
         <BackArrow onClick={() => navigate("/invoices")} />
         <div className="flex items-center gap-2">
           <span className="font-bold text-gray-900">Invoice {invoice.invoice_number}</span>
-          <span className="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase">{invoice.status}</span>
+          <span className={`${badge.className} text-[10px] font-bold px-2 py-0.5 rounded uppercase`}>{badge.label}</span>
         </div>
         <MoreButton onClick={() => setShowActions((s) => !s)} />
       </div>
@@ -248,13 +263,16 @@ export default function InvoiceDetail() {
           {invoice.sent_at ? `Last sent: ${new Date(invoice.sent_at).toLocaleDateString()}` : "Last sent: Never"}
         </p>
         <div className="flex gap-2 mt-1">
-          <button onClick={handleMarkSent} className={`${btnSoft} flex-1`}>
-            Mark as sent
-          </button>
+          {!isSent && !isPaid && (
+            <button onClick={handleMarkSent} disabled={markingSent} className={`${btnSoft} flex-1`}>
+              {markingSent ? "Saving..." : "Mark as sent"}
+            </button>
+          )}
           <button onClick={() => navigate(`/invoices/${id}/send`)} className={`${btnPrimary} flex-1`}>
             Send invoice
           </button>
         </div>
+        {actionError && <p className="text-red-500 text-xs mt-2">{actionError}</p>}
         <UpgradeNote>Auto-remind every 7 days</UpgradeNote>
       </StepCard>
 

@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
+import { balanceDueCents, money, validatePaymentAmount } from "../../lib/payments"
 
 const METHODS = ["Bank payment", "Cash", "Cheque", "Credit card", "PayPal", "Other"]
 
@@ -14,11 +15,42 @@ export default function RecordPayment() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
+  const [balance, setBalance] = useState<number | null>(null) // cents
+
+  // What is still uncovered on this estimate, read fresh from the database.
+  async function loadBalance(): Promise<number | null> {
+    if (!id) return null
+    const { data: est } = await supabase.from("estimates").select("total").eq("id", id).maybeSingle()
+    if (!est) return null
+    const { data: pays } = await supabase.from("payments").select("amount").eq("estimate_id", id)
+    return balanceDueCents(Number(est.total), (pays || []).map((p) => Number(p.amount)))
+  }
+
+  useEffect(() => {
+    loadBalance().then(setBalance)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
+
+  const amountError = validatePaymentAmount(amount, balance, "estimate")
 
   async function handleSubmit() {
-    if (!id || !amount || saving) return
+    if (!id || !amount || saving || amountError) return
     setSaving(true)
     setError(null)
+
+    const freshBalance = await loadBalance()
+    if (freshBalance === null) {
+      setError("Could not load this estimate. Please try again.")
+      setSaving(false)
+      return
+    }
+    setBalance(freshBalance)
+    const freshError = validatePaymentAmount(amount, freshBalance, "estimate")
+    if (freshError) {
+      setError(freshError)
+      setSaving(false)
+      return
+    }
 
     const { data: userData } = await supabase.auth.getUser()
 
@@ -78,11 +110,14 @@ export default function RecordPayment() {
       <label className="block text-xs font-medium text-gray-500 mb-1">Date</label>
       <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-600 mb-3 min-w-0" />
 
-      <label className="block text-xs font-medium text-gray-500 mb-1">Amount</label>
-      <div className="relative mb-3">
+      <label className="block text-xs font-medium text-gray-500 mb-1">
+        Amount{balance !== null && <span className="text-gray-400"> · Still to pay ${money(balance)}</span>}
+      </label>
+      <div className="relative mb-1">
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">$</span>
-        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-sm outline-none focus:border-blue-600 min-w-0" />
+        <input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-sm outline-none focus:border-blue-600 min-w-0" />
       </div>
+      <p className="text-red-500 text-xs mb-3 min-h-4">{amountError}</p>
 
       <label className="block text-xs font-medium text-gray-500 mb-1">Method</label>
       <div className="border border-gray-200 rounded-lg mb-3 overflow-hidden">
@@ -108,7 +143,7 @@ export default function RecordPayment() {
         <button onClick={() => navigate(`/estimates/${id}`)} className="flex-1 btn-glass btn-glass-neutral">
           Cancel
         </button>
-        <button onClick={handleSubmit} disabled={saving || !amount} className="flex-1 btn-glass btn-glass-primary">
+        <button onClick={handleSubmit} disabled={saving || !amount || !!amountError} className="flex-1 btn-glass btn-glass-primary">
           {saving ? "Saving..." : "Submit"}
         </button>
       </div>

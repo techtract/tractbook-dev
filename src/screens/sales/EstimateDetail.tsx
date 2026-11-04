@@ -36,6 +36,7 @@ export default function EstimateDetail() {
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [estimate, setEstimate] = useState<any>(null)
   const [customerName, setCustomerName] = useState("")
   const [lineItems, setLineItems] = useState<LineItemRow[]>([])
@@ -130,7 +131,16 @@ export default function EstimateDetail() {
 
   async function handleMarkSent() {
     if (!id) return
-    await supabase.from("estimates").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", id)
+    setActionError(null)
+    const { data: updated, error: updError } = await supabase
+      .from("estimates")
+      .update({ status: "sent", sent_at: new Date().toISOString() })
+      .eq("id", id)
+      .select("id")
+    if (updError || !updated || updated.length === 0) {
+      setActionError(updError?.message || "Could not mark this estimate as sent. Please try again.")
+      return
+    }
     await logActivity("Sent", "Marked as sent")
     loadEstimate()
   }
@@ -294,6 +304,7 @@ export default function EstimateDetail() {
             Send estimate
           </button>
         </div>
+        {actionError && <p className="text-red-500 text-xs mt-2">{actionError}</p>}
         <UpgradeNote>Auto-remind every 7 days</UpgradeNote>
       </StepCard>
 

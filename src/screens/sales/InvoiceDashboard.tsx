@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
+import { invoiceState, invoiceStatusInfo } from "../../lib/documentStatus"
 
 interface InvoiceRow {
   id: string
@@ -14,21 +15,7 @@ interface InvoiceRow {
   customer_name: string
 }
 
-type Filter = "all" | "draft" | "sent" | "paid"
-
-function statusInfo(status: string, dueDate: string | null): { text: string; className: string } {
-  if (status === "paid") return { text: "Paid", className: "text-brand-success-dark" }
-  if (!dueDate) return { text: status.charAt(0).toUpperCase() + status.slice(1), className: "text-gray-500" }
-
-  const due = new Date(dueDate + "T00:00:00")
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const diffDays = Math.round((due.getTime() - today.getTime()) / 86400000)
-
-  if (diffDays < 0) return { text: `Overdue ${Math.abs(diffDays)} days`, className: "text-red-700" }
-  if (diffDays <= 14) return { text: `Due in ${diffDays} days`, className: "text-amber-700" }
-  return { text: status.charAt(0).toUpperCase() + status.slice(1), className: "text-gray-500" }
-}
+type Filter = "all" | "draft" | "sent" | "overdue" | "paid"
 
 export default function InvoiceDashboard() {
   const navigate = useNavigate()
@@ -92,18 +79,24 @@ export default function InvoiceDashboard() {
     setLoading(false)
   }
 
-  const filtered = invoices.filter((i) => filter === "all" || i.status === filter)
+  const filtered = invoices.filter((i) => {
+    if (filter === "all") return true
+    if (filter === "overdue") return invoiceState(i.status, i.due_date) === "overdue"
+    return i.status === filter
+  })
 
   const draftTotal = invoices.filter((i) => i.status === "draft").reduce((s, i) => s + i.total, 0)
   const notPaidTotal = invoices
     .filter((i) => i.status === "sent")
     .reduce((s, i) => s + i.total, 0)
   const paidTotal = invoices.filter((i) => i.status === "paid").reduce((s, i) => s + i.total, 0)
+  const overdueInvoices = invoices.filter((i) => invoiceState(i.status, i.due_date) === "overdue")
+  const overdueTotal = overdueInvoices.reduce((s, i) => s + i.total, 0)
 
+  const overdueCount = overdueInvoices.length
   const dueSoonCount = invoices.filter((i) => {
-    if (i.status !== "sent" || !i.due_date) return false
-    const info = statusInfo(i.status, i.due_date)
-    return info.text.startsWith("Due in") || info.text.startsWith("Overdue")
+    const info = invoiceStatusInfo(i.status, i.due_date)
+    return info.state === "sent" && (info.text.startsWith("Due in") || info.text === "Due today")
   }).length
 
   return (
@@ -135,7 +128,7 @@ export default function InvoiceDashboard() {
         </button>
       </div>
 
-      {dueSoonCount > 0 && (
+      {(dueSoonCount > 0 || overdueCount > 0) && (
         <div className="mb-4 p-3 bg-brand-success-soft border border-brand-success-line rounded-lg">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-bold flex items-center gap-1.5">
@@ -143,8 +136,19 @@ export default function InvoiceDashboard() {
             </span>
           </div>
           <p className="text-xs text-gray-700">
-            {dueSoonCount} invoice{dueSoonCount > 1 ? "s" : ""} due soon —{" "}
-            <span className="text-blue-700 font-semibold">send reminders now</span> before they're overdue.
+            {overdueCount > 0 && (
+              <>
+                <span className="font-semibold text-red-700">{overdueCount} invoice{overdueCount > 1 ? "s" : ""} overdue</span>
+                {dueSoonCount > 0 ? ` and ${dueSoonCount} due soon` : ""} —{" "}
+                <span className="text-blue-700 font-semibold">follow up</span> to get paid.
+              </>
+            )}
+            {overdueCount === 0 && (
+              <>
+                {dueSoonCount} invoice{dueSoonCount > 1 ? "s" : ""} due soon —{" "}
+                <span className="text-blue-700 font-semibold">send reminders now</span> before they're overdue.
+              </>
+            )}
           </p>
         </div>
       )}
@@ -168,18 +172,22 @@ export default function InvoiceDashboard() {
           <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">Not paid</p>
           <p className="text-sm font-bold">${notPaidTotal.toFixed(2)}</p>
         </div>
+        <div className="shrink-0 w-28 border border-red-200 rounded-xl p-3">
+          <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">Overdue</p>
+          <p className="text-sm font-bold">${overdueTotal.toFixed(2)}</p>
+        </div>
         <div className="shrink-0 w-28 border border-blue-600 bg-blue-50 rounded-xl p-3">
           <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">Paid</p>
           <p className="text-sm font-bold">${paidTotal.toFixed(2)}</p>
         </div>
       </div>
 
-      <div className="flex gap-2 mb-4">
-        {(["all", "draft", "sent", "paid"] as Filter[]).map((f) => (
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+        {(["all", "draft", "sent", "overdue", "paid"] as Filter[]).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${
+            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border ${
               filter === f
                 ? "bg-gray-900 text-white border-gray-900"
                 : "border-gray-300 text-gray-700"
@@ -213,7 +221,7 @@ export default function InvoiceDashboard() {
       ) : (
         <div className="space-y-2">
           {filtered.map((i) => {
-            const info = statusInfo(i.status, i.due_date)
+            const info = invoiceStatusInfo(i.status, i.due_date)
             return (
               <div
                 key={i.id}

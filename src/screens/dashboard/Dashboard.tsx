@@ -5,6 +5,7 @@ import BottomNav from "../../components/BottomNav"
 import AppHeader from "../../components/AppHeader"
 import { useAccount } from "../../hooks/useAccount"
 import { getSetupProgress, type SetupFacts } from "../../lib/setupProgress"
+import { invoiceState } from "../../lib/documentStatus"
 
 function Svg({ children }: { children: React.ReactNode }) {
   return (
@@ -39,6 +40,7 @@ export default function Dashboard() {
   const [scannedCount, setScannedCount] = useState<number>(0)
   const [paidCount, setPaidCount] = useState<number>(0)
   const [unpaidCount, setUnpaidCount] = useState<number>(0)
+  const [overdueCount, setOverdueCount] = useState<number>(0)
   const [setupFacts, setSetupFacts] = useState<SetupFacts | null>(null)
 
   const account = useAccount()
@@ -91,15 +93,18 @@ export default function Dashboard() {
 
     const { data: invoices } = await supabase
       .from("invoices")
-      .select("status")
+      .select("status, due_date")
       .eq("business_id", membership.business_id)
 
     let paid = 0
     let unpaid = 0
+    let overdue = 0
     for (const inv of invoices || []) {
       if (inv.status === "paid") paid += 1
       else unpaid += 1
+      if (invoiceState(inv.status, inv.due_date) === "overdue") overdue += 1
     }
+    setOverdueCount(overdue)
     setPaidCount(paid)
     setUnpaidCount(unpaid)
 
@@ -228,6 +233,17 @@ export default function Dashboard() {
                 <div className="h-full bg-[#9ca3af] rounded-full" style={{ width: `${unpaidPct}%` }} />
               </div>
             </div>
+            {overdueCount > 0 && (
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-brand-error">Overdue</span>
+                  <span className="text-body">{overdueCount}</span>
+                </div>
+                <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-brand-error rounded-full" style={{ width: `${totalInvoices > 0 ? (overdueCount / totalInvoices) * 100 : 0}%` }} />
+                </div>
+              </div>
+            )}
           </div>
         )}
 

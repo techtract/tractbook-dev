@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
+import { estimateStatusInfo } from "../../lib/documentStatus"
 
 interface EstimateRow {
   id: string
@@ -16,20 +17,6 @@ interface EstimateRow {
 }
 
 type Filter = "all" | "draft" | "sent" | "accepted"
-
-function statusInfo(status: string, dueDate: string | null): { text: string; className: string } {
-  if (status === "accepted") return { text: "Accepted", className: "text-brand-success-dark" }
-  if (!dueDate) return { text: status.charAt(0).toUpperCase() + status.slice(1), className: "text-gray-500" }
-
-  const due = new Date(dueDate + "T00:00:00")
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const diffDays = Math.round((due.getTime() - today.getTime()) / 86400000)
-
-  if (diffDays < 0) return { text: `Overdue ${Math.abs(diffDays)} days`, className: "text-red-700" }
-  if (diffDays <= 14) return { text: `Due in ${diffDays} days`, className: "text-amber-700" }
-  return { text: status.charAt(0).toUpperCase() + status.slice(1), className: "text-gray-500" }
-}
 
 export default function EstimateDashboard() {
   const navigate = useNavigate()
@@ -122,8 +109,8 @@ export default function EstimateDashboard() {
 
   const expiringSoonCount = estimates.filter((e) => {
     if (e.status !== "sent" || !e.due_date) return false
-    const info = statusInfo(e.status, e.due_date)
-    return info.text.startsWith("Due in") || info.text.startsWith("Overdue")
+    const info = estimateStatusInfo(e.status, e.due_date)
+    return info.state === "expiring" || info.state === "expired"
   }).length
 
   return (
@@ -166,7 +153,7 @@ export default function EstimateDashboard() {
             </button>
           </div>
           <p className="text-xs text-gray-700">
-            {expiringSoonCount} estimate{expiringSoonCount > 1 ? "s" : ""} due soon —{" "}
+            {expiringSoonCount} estimate{expiringSoonCount > 1 ? "s" : ""} expiring or expired —{" "}
             <span className="text-blue-700 font-semibold">send reminders now</span> before they lapse.
           </p>
         </div>
@@ -236,7 +223,7 @@ export default function EstimateDashboard() {
       ) : (
         <div className="space-y-2">
           {filtered.map((e) => {
-            const info = statusInfo(e.status, e.due_date)
+            const info = estimateStatusInfo(e.status, e.due_date)
             return (
               <div
                 key={e.id}

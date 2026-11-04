@@ -9,6 +9,7 @@ export default function SendInvoice() {
   const [customerEmail, setCustomerEmail] = useState<string | null>(null)
   const [customerName, setCustomerName] = useState("")
   const [marking, setMarking] = useState(false)
+  const [markError, setMarkError] = useState<string | null>(null)
 
   useEffect(() => {
     load()
@@ -43,7 +44,17 @@ export default function SendInvoice() {
   async function handleMarkSent() {
     if (!id) return
     setMarking(true)
-    await supabase.from("invoices").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", id)
+    setMarkError(null)
+    const { data: updated, error: updError } = await supabase
+      .from("invoices")
+      .update({ status: "sent", sent_at: new Date().toISOString() })
+      .eq("id", id)
+      .select("id")
+    if (updError || !updated || updated.length === 0) {
+      setMarkError(updError?.message || "Could not mark this invoice as sent. Please try again.")
+      setMarking(false)
+      return
+    }
     await supabase.from("invoice_activity").insert({
       invoice_id: id,
       action: "Sent",
@@ -94,6 +105,8 @@ export default function SendInvoice() {
       <p className="text-[11px] text-gray-400 mb-5">
         A shareable link (no login required for your customer) is coming in the next update.
       </p>
+
+      {markError && <p className="text-red-500 text-sm mb-3">{markError}</p>}
 
       <div className="flex gap-2 mt-auto">
         <button onClick={() => navigate(`/invoices/${id}`)} className="flex-1 btn-glass btn-glass-neutral">

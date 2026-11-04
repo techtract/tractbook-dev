@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
+import { balanceDueCents, money, toCents, validatePaymentAmount } from "../../lib/payments"
 
 const METHODS = ["Bank payment", "Cash", "Cheque", "Credit card", "PayPal", "Other"]
 
@@ -14,11 +15,43 @@ export default function ReceivePayment() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
+  const [balance, setBalance] = useState<number | null>(null) // cents
+
+  // Balance still owed on this invoice, read fresh from the database.
+  async function loadBalance(): Promise<number | null> {
+    if (!id) return null
+    const { data: inv } = await supabase.from("invoices").select("total").eq("id", id).maybeSingle()
+    if (!inv) return null
+    const { data: pays } = await supabase.from("payments").select("amount").eq("invoice_id", id)
+    return balanceDueCents(Number(inv.total), (pays || []).map((p) => Number(p.amount)))
+  }
+
+  useEffect(() => {
+    loadBalance().then(setBalance)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
+
+  const amountError = validatePaymentAmount(amount, balance)
 
   async function handleSubmit() {
-    if (!id || !amount || saving || parseFloat(amount) <= 0) return
+    if (!id || !amount || saving || amountError) return
     setSaving(true)
     setError(null)
+
+    // Re-check against the latest balance so two open tabs cannot overpay.
+    const freshBalance = await loadBalance()
+    if (freshBalance === null) {
+      setError("Could not load this invoice. Please try again.")
+      setSaving(false)
+      return
+    }
+    setBalance(freshBalance)
+    const freshError = validatePaymentAmount(amount, freshBalance)
+    if (freshError) {
+      setError(freshError)
+      setSaving(false)
+      return
+    }
 
     const { data: userData } = await supabase.auth.getUser()
 
@@ -57,9 +90,9 @@ export default function ReceivePayment() {
         .select("amount")
         .eq("invoice_id", id)
 
-      const paidTotal = (allPayments || []).reduce((sum, p) => sum + Number(p.amount), 0)
+      const paidTotal = (allPayments || []).reduce((sum, p) => sum + toCents(Number(p.amount)), 0)
 
-      if (paidTotal >= Number(invoiceRow.total)) {
+      if (paidTotal >= toCents(Number(invoiceRow.total))) {
         await supabase.from("invoices").update({ status: "paid" }).eq("id", id)
       }
     }
@@ -98,11 +131,14 @@ export default function ReceivePayment() {
       <label className="block text-xs font-medium text-gray-500 mb-1">Date</label>
       <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-600 mb-3 min-w-0" />
 
-      <label className="block text-xs font-medium text-gray-500 mb-1">Amount</label>
-      <div className="relative mb-3">
+      <label className="block text-xs font-medium text-gray-500 mb-1">
+        Amount{balance !== null && <span className="text-gray-400"> · Balance due ${money(balance)}</span>}
+      </label>
+      <div className="relative mb-1">
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">$</span>
-        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" min="0" className="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-sm outline-none focus:border-blue-600 min-w-0" />
+        <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" min="0" className="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 text-sm outline-none focus:border-blue-600 min-w-0" />
       </div>
+      <p className="text-red-500 text-xs mb-3 min-h-4">{amountError}</p>
 
       <label className="block text-xs font-medium text-gray-500 mb-1">Method</label>
       <select
@@ -124,7 +160,7 @@ export default function ReceivePayment() {
         <button onClick={() => navigate(`/invoices/${id}`)} className="flex-1 btn-glass btn-glass-neutral">
           Cancel
         </button>
-        <button onClick={handleSubmit} disabled={saving || !amount || parseFloat(amount) <= 0} className="flex-1 btn-glass btn-glass-primary">
+        <button onClick={handleSubmit} disabled={saving || !amount || !!amountError} className="flex-1 btn-glass btn-glass-primary">
           {saving ? "Saving..." : "Submit"}
         </button>
       </div>
