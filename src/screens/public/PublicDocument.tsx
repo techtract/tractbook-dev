@@ -18,6 +18,12 @@ export default function PublicDocument() {
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   const [notFound, setNotFound] = useState(false)
 
+  // Customers open this on any screen: drop the phone-frame look used inside the app.
+  useEffect(() => {
+    document.body.classList.add("public-doc")
+    return () => document.body.classList.remove("public-doc")
+  }, [])
+
   useEffect(() => {
     async function load() {
       try {

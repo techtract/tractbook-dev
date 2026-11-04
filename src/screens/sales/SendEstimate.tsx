@@ -150,10 +150,6 @@ export default function SendEstimate() {
         </span>
       </button>
 
-      <p className="text-[11px] text-gray-400 mb-5">
-        A shareable link (no login required for your customer) is coming in the next update.
-      </p>
-
       {markError && <p className="text-red-500 text-sm mb-3">{markError}</p>}
 
       <div className="flex gap-2 mt-auto">

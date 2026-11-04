@@ -182,3 +182,28 @@ button.no-press:active { transform: none; }
     box-shadow: none !important;
   }
 }
+
+/* Public customer page (/view/...): a normal full-width document, not the in-app phone frame. */
+@media (min-width: 768px) {
+  body.public-doc {
+    display: block;
+    padding: 0;
+    background: #fff;
+  }
+  body.public-doc #root > div {
+    width: auto;
+    max-width: 700px;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+}
+/* No browser header/footer (date, page title, long link) on the saved PDF. */
+@media print {
+  @page { margin: 0; }
+  body.public-doc #root > div { padding: 14mm !important; margin: 0 auto !important; }
+}
