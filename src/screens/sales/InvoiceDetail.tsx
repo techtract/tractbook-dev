@@ -28,6 +28,9 @@ export default function InvoiceDetail() {
   const [actionError, setActionError] = useState<string | null>(null)
   const [markingSent, setMarkingSent] = useState(false)
   const [hasTaxNumber, setHasTaxNumber] = useState(true)
+  const [showVoid, setShowVoid] = useState(false)
+  const [voidReason, setVoidReason] = useState("")
+  const [voiding, setVoiding] = useState(false)
   const [invoice, setInvoice] = useState<any>(null)
   const [customerName, setCustomerName] = useState("")
   const [activity, setActivity] = useState<ActivityRow[]>([])
@@ -128,8 +131,34 @@ export default function InvoiceDetail() {
     loadInvoice()
   }
 
+  async function handleVoid() {
+    if (!id || voiding) return
+    const reason = voidReason.trim()
+    if (!reason) {
+      setActionError("Add a short reason for voiding this invoice.")
+      return
+    }
+    setVoiding(true)
+    setActionError(null)
+    const { data: updated, error: updError } = await supabase
+      .from("invoices")
+      .update({ status: "void", void_reason: reason, voided_at: new Date().toISOString() })
+      .eq("id", id)
+      .select("id")
+    setVoiding(false)
+    if (updError || !updated || updated.length === 0) {
+      setActionError(updError?.message || "Could not void this invoice. Please try again.")
+      return
+    }
+    await logActivity("Voided", reason)
+    setShowVoid(false)
+    setVoidReason("")
+    setShowActions(false)
+    loadInvoice()
+  }
+
   async function handleDelete() {
-    if (!id) return
+    if (!id || invoice?.status !== "draft") return
     if (!confirm("Delete this invoice? This cannot be undone.")) return
     setDeleting(true)
     const { error: delError } = await supabase.from("invoices").delete().eq("id", id)
@@ -199,6 +228,7 @@ export default function InvoiceDetail() {
   const badge = invoiceBadge(invoice.status, invoice.due_date)
   const isDraft = invoice.status === "draft"
   const isPaid = invoice.status === "paid"
+  const isVoid = invoice.status === "void"
   const isSent = invoice.status === "sent" || invoice.status === "paid" || !!invoice.sent_at
   const paidTotal = payments.reduce((s, p) => s + p.amount, 0)
   const balanceDue = invoice.total - paidTotal
@@ -217,13 +247,23 @@ export default function InvoiceDetail() {
       {showActions && (
         <div className="border border-gray-200 rounded-lg mb-4 divide-y divide-gray-100 text-sm">
           <button onClick={() => navigate(`/invoices/${id}/print`)} className="w-full text-left px-4 py-2.5">Export as PDF / Print</button>
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="w-full text-left px-4 py-2.5 text-red-600"
-          >
-            {deleting ? "Deleting..." : "Delete"}
-          </button>
+          {isDraft && (
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="w-full text-left px-4 py-2.5 text-red-600"
+            >
+              {deleting ? "Deleting..." : "Delete draft"}
+            </button>
+          )}
+          {!isDraft && !isVoid && (
+            <button
+              onClick={() => { setShowVoid(true); setShowActions(false); setActionError(null) }}
+              className="w-full text-left px-4 py-2.5 text-red-600"
+            >
+              Void invoice
+            </button>
+          )}
         </div>
       )}
 
@@ -241,13 +281,51 @@ export default function InvoiceDetail() {
         </div>
       </div>
 
+      {showVoid && (
+        <div className="border border-red-200 bg-red-50 rounded-lg p-3 mb-4">
+          <p className="text-sm font-semibold text-red-700 mb-1">Void this invoice?</p>
+          {payments.length > 0 ? (
+            <p className="text-xs text-red-700 mb-2">
+              This invoice has payments recorded, so it can't be voided yet. Refunds and credit notes are coming in an update.
+            </p>
+          ) : (
+            <>
+              <p className="text-xs text-red-700 mb-2">
+                It stays on record, is left out of your totals, and can't be undone.
+              </p>
+              <textarea
+                value={voidReason}
+                onChange={(e) => setVoidReason(e.target.value)}
+                placeholder="Reason (for example: wrong customer)"
+                className="w-full border border-red-200 rounded-lg px-3 py-2 text-sm outline-none h-16 resize-none mb-2 min-w-0 bg-white"
+              />
+            </>
+          )}
+          {actionError && <p className="text-red-600 text-xs mb-2">{actionError}</p>}
+          <div className="flex gap-2">
+            <button onClick={() => { setShowVoid(false); setActionError(null) }} className={`${btnSoft} flex-1`}>Cancel</button>
+            {payments.length === 0 && (
+              <button onClick={handleVoid} disabled={voiding} className="flex-1 rounded-full bg-red-600 text-white text-sm font-semibold py-2.5">
+                {voiding ? "Voiding..." : "Void invoice"}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {isVoid && (
+        <div className="bg-gray-100 border border-gray-200 rounded-lg px-3 py-2.5 text-xs text-gray-700 mb-4">
+          <b>Void.</b> {invoice.void_reason ? `Reason: ${invoice.void_reason}` : ""} This invoice is kept on record but is not counted in your totals.
+        </div>
+      )}
+
       {isDraft && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 text-xs text-amber-700 mb-4">
           This is a <b>draft</b> invoice. Send it to your customer to start collecting payment.
         </div>
       )}
 
-      {!isPaid && Number(invoice.tax_total) > 0 && !hasTaxNumber && (
+      {!isPaid && !isVoid && Number(invoice.tax_total) > 0 && !hasTaxNumber && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 text-xs text-amber-800 mb-4">
           This invoice charges tax, but your business has no GST/HST number. Add it in Business settings so it prints on the invoice.
         </div>
@@ -264,11 +342,13 @@ export default function InvoiceDetail() {
         <p className="text-xs text-body ml-12 mb-2">
           Created {new Date(invoice.created_at).toLocaleDateString()}
         </p>
-        <div className="ml-12">
-          <button onClick={() => navigate(`/invoices/${id}/edit`)} className={btnOutline}>
-            Edit draft
-          </button>
-        </div>
+        {isDraft && (
+          <div className="ml-12">
+            <button onClick={() => navigate(`/invoices/${id}/edit`)} className={btnOutline}>
+              Edit draft
+            </button>
+          </div>
+        )}
       </StepCard>
 
       <StepCard>
@@ -277,17 +357,19 @@ export default function InvoiceDetail() {
           {invoice.sent_at ? `Last sent: ${new Date(invoice.sent_at).toLocaleDateString()}` : "Last sent: Never"}
         </p>
         <div className="flex gap-2 mt-1">
-          {!isSent && !isPaid && (
+          {!isSent && !isPaid && !isVoid && (
             <button onClick={handleMarkSent} disabled={markingSent} className={`${btnSoft} flex-1`}>
               {markingSent ? "Saving..." : "Mark as sent"}
             </button>
           )}
-          <button onClick={() => navigate(`/invoices/${id}/send`)} className={`${btnPrimary} flex-1`}>
-            Send invoice
-          </button>
+          {!isVoid && (
+            <button onClick={() => navigate(`/invoices/${id}/send`)} className={`${btnPrimary} flex-1`}>
+              Send invoice
+            </button>
+          )}
         </div>
-        {actionError && <p className="text-red-500 text-xs mt-2">{actionError}</p>}
-        <UpgradeNote>Auto-remind every 7 days</UpgradeNote>
+        {actionError && !showVoid && <p className="text-red-500 text-xs mt-2">{actionError}</p>}
+        {!isVoid && <UpgradeNote>Auto-remind every 7 days</UpgradeNote>}
       </StepCard>
 
       <StepCard>
@@ -306,7 +388,7 @@ export default function InvoiceDetail() {
         )}
       </StepCard>
 
-      {invoice.status !== "paid" && (
+      {invoice.status !== "paid" && !isVoid && (
         <div className="mb-3">
           <button
             onClick={handleGetPaymentLink}
@@ -320,13 +402,15 @@ export default function InvoiceDetail() {
           )}
         </div>
       )}
-      <button
-        onClick={() => navigate(`/invoices/${id}/payment`)}
-        disabled={isPaid}
-        className={`${btnBig} btn-glass-success mb-6`}
-      >
-        {isPaid ? "Paid in full" : "Receive payment"}
-      </button>
+      {!isVoid && (
+        <button
+          onClick={() => navigate(`/invoices/${id}/payment`)}
+          disabled={isPaid}
+          className={`${btnBig} btn-glass-success mb-6`}
+        >
+          {isPaid ? "Paid in full" : "Receive payment"}
+        </button>
+      )}
 
       <div className="border-t border-gray-200 pt-4">
         <div className="flex items-center justify-between mb-3">

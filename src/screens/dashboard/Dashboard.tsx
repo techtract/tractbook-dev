@@ -100,6 +100,7 @@ export default function Dashboard() {
     let unpaid = 0
     let overdue = 0
     for (const inv of invoices || []) {
+      if (inv.status === "void") continue
       if (inv.status === "paid") paid += 1
       else unpaid += 1
       if (invoiceState(inv.status, inv.due_date) === "overdue") overdue += 1

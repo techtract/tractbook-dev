@@ -188,6 +188,12 @@ export default function CreateInvoice() {
       return
     }
 
+    if (inv.status !== "draft") {
+      setError("Only draft invoices can be edited. Void this invoice and create a new one instead.")
+      setLoadingExisting(false)
+      return
+    }
+
     setInvoiceNumber(inv.invoice_number)
     setSummary(inv.summary || "")
     setInvoiceDate(inv.invoice_date)

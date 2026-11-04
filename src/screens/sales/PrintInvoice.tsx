@@ -46,7 +46,7 @@ export default function PrintInvoice() {
   }
   if (!invoice) return <p style={{ padding: 40 }}>Loading...</p>
 
-  const isDraft = !invoice.sent_at && invoice.status !== "sent" && invoice.status !== "paid"
+  const isDraft = !invoice.sent_at && invoice.status !== "sent" && invoice.status !== "paid" && invoice.status !== "void"
   const amountDue = Number(invoice.total) - paidTotal
 
   const provincePreset = business?.country === "CA" && business?.region ? CANADA_TAX_RATES[business.region] : null
@@ -75,6 +75,26 @@ export default function PrintInvoice() {
           }}
         >
           DRAFT
+        </div>
+      )}
+      {invoice.status === "void" && (
+        <div
+          className="no-print-keep"
+          style={{
+            position: "absolute",
+            top: "40%",
+            left: "50%",
+            transform: "translate(-50%, -50%) rotate(-30deg)",
+            fontSize: 90,
+            fontWeight: 800,
+            color: "rgba(107, 114, 128, 0.25)",
+            letterSpacing: 8,
+            pointerEvents: "none",
+            zIndex: 10,
+            whiteSpace: "nowrap",
+          }}
+        >
+          VOID
         </div>
       )}
       {invoice.status === "paid" && (
