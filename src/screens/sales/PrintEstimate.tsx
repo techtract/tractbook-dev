@@ -143,7 +143,7 @@ export default function PrintEstimate() {
               </td>
               <td style={{ padding: 6, textAlign: "center" }}>{it.quantity}</td>
               <td style={{ padding: 6, textAlign: "center" }}>${it.unit_price}</td>
-              <td style={{ padding: 6, textAlign: "right" }}>${it.line_total}</td>
+              <td style={{ padding: 6, textAlign: "right" }}>${(Number(it.quantity) * Number(it.unit_price)).toFixed(2)}</td>
             </tr>
           ))}
         </tbody>

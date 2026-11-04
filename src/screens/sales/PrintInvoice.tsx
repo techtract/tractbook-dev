@@ -161,7 +161,7 @@ export default function PrintInvoice() {
               </td>
               <td style={{ padding: 6, textAlign: "center" }}>{it.quantity}</td>
               <td style={{ padding: 6, textAlign: "center" }}>${it.unit_price}</td>
-              <td style={{ padding: 6, textAlign: "right" }}>${it.line_total}</td>
+              <td style={{ padding: 6, textAlign: "right" }}>${(Number(it.quantity) * Number(it.unit_price)).toFixed(2)}</td>
             </tr>
           ))}
         </tbody>
@@ -172,8 +172,8 @@ export default function PrintInvoice() {
         <p style={{ fontWeight: 700, fontSize: 16 }}>Total: ${invoice.total} {invoice.currency}</p>
         {paidTotal > 0 && (
           <>
-            <p style={{ color: "#16a34a" }}>Paid: ${paidTotal.toFixed(2)}</p>
-            <p style={{ fontWeight: 700, fontSize: 16, color: amountDue > 0 ? "#dc2626" : "#16a34a" }}>
+            <p style={{ color: "#4fb33f" }}>Paid: ${paidTotal.toFixed(2)}</p>
+            <p style={{ fontWeight: 700, fontSize: 16, color: amountDue > 0 ? "#dc2626" : "#4fb33f" }}>
               Amount Due: ${amountDue.toFixed(2)} {invoice.currency}
             </p>
           </>
