@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { Wordmark } from "../../components/ui/Wordmark"
 import { supabase } from "../../lib/supabase"
+import { formatGstHst } from "../../lib/taxNumber"
 
 const CANADA_TAX_RATES: Record<string, { label: string; rate: number }> = {
   Ontario: { label: "HST 13%", rate: 13 },
@@ -84,6 +85,7 @@ export default function PrintEstimate() {
           {business?.city}, {business?.region}<br />
           {business?.country === "CA" ? "Canada" : "United States"}
           {business?.phone && <><br />Phone: {business.phone}</>}
+          {business?.tax_registration_number && <><br />GST/HST No. {formatGstHst(business.tax_registration_number)}</>}
         </p>
       </div>
 

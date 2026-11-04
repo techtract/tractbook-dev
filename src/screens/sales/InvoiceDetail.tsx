@@ -27,6 +27,7 @@ export default function InvoiceDetail() {
   const [error, setError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [markingSent, setMarkingSent] = useState(false)
+  const [hasTaxNumber, setHasTaxNumber] = useState(true)
   const [invoice, setInvoice] = useState<any>(null)
   const [customerName, setCustomerName] = useState("")
   const [activity, setActivity] = useState<ActivityRow[]>([])
@@ -78,6 +79,13 @@ export default function InvoiceDetail() {
       .order("payment_date", { ascending: false })
 
     setPayments(paymentRows || [])
+
+    const { data: biz } = await supabase
+      .from("businesses")
+      .select("country, tax_registration_number")
+      .eq("id", inv.business_id)
+      .maybeSingle()
+    setHasTaxNumber(!biz || biz.country !== "CA" || !!biz.tax_registration_number)
     setLoading(false)
   }
 
@@ -236,6 +244,12 @@ export default function InvoiceDetail() {
       {isDraft && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 text-xs text-amber-700 mb-4">
           This is a <b>draft</b> invoice. Send it to your customer to start collecting payment.
+        </div>
+      )}
+
+      {!isPaid && Number(invoice.tax_total) > 0 && !hasTaxNumber && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 text-xs text-amber-800 mb-4">
+          This invoice charges tax, but your business has no GST/HST number. Add it in Business settings so it prints on the invoice.
         </div>
       )}
 

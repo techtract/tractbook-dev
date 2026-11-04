@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { Wordmark } from "../../components/ui/Wordmark"
 import { supabase } from "../../lib/supabase"
+import { formatGstHst } from "../../lib/taxNumber"
 
 const CANADA_TAX_RATES: Record<string, { label: string; rate: number }> = {
   Ontario: { label: "HST 13%", rate: 13 },
@@ -104,6 +105,7 @@ export default function PrintInvoice() {
           {business?.city}, {business?.region}<br />
           {business?.country === "CA" ? "Canada" : "United States"}
           {business?.phone && <><br />Phone: {business.phone}</>}
+          {business?.tax_registration_number && <><br />GST/HST No. {formatGstHst(business.tax_registration_number)}</>}
         </p>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 24, marginBottom: 24 }}>
@@ -130,6 +132,12 @@ export default function PrintInvoice() {
             <span style={{ color: "#666" }}>Invoice Date:</span>
             <span style={{ fontWeight: 600 }}>{invoice.invoice_date}</span>
           </div>
+          {invoice.payment_terms && invoice.payment_terms !== "Custom" && (
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "4px 0" }}>
+              <span style={{ color: "#666" }}>Terms:</span>
+              <span style={{ fontWeight: 600 }}>{invoice.payment_terms}</span>
+            </div>
+          )}
           {invoice.due_date && (
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "4px 0" }}>
               <span style={{ color: "#666" }}>Payment Due:</span>

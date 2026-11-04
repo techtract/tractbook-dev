@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
+import { isValidGstHst, normalizeGstHst } from "../../lib/taxNumber"
 
 const CANADIAN_PROVINCES = [
   "Ontario", "Quebec", "British Columbia", "Alberta", "Manitoba",
@@ -60,6 +61,7 @@ export default function EditBusiness() {
   const [mailingPostalCode, setMailingPostalCode] = useState("")
 
   const isCanada = country === "CA"
+  const gstFormatValid = !isCanada || !taxRegNumber.trim() || isValidGstHst(taxRegNumber)
   const bnFormatValid = !businessNumber || (isCanada ? isValidBN(businessNumber) : isValidEIN(businessNumber))
 
   useEffect(() => {
@@ -165,7 +167,7 @@ export default function EditBusiness() {
   }
 
   async function handleSave() {
-    if (!businessId || !bnFormatValid) return
+    if (!businessId || !bnFormatValid || !gstFormatValid) return
     setSaving(true)
     setError(null)
 
@@ -179,7 +181,7 @@ export default function EditBusiness() {
         country,
         region: region || null,
         business_number: businessNumber.trim() || null,
-        tax_registration_number: taxRegNumber.trim() || null,
+        tax_registration_number: isCanada && taxRegNumber.trim() ? normalizeGstHst(taxRegNumber) : taxRegNumber.trim() || null,
         street1: street1.trim() || null,
         street2: street2.trim() || null,
         city: city.trim() || null,
@@ -220,7 +222,7 @@ export default function EditBusiness() {
         <h1 className="text-lg font-bold">Business details</h1>
         <button
           onClick={handleSave}
-          disabled={saving || !bnFormatValid}
+          disabled={saving || !bnFormatValid || !gstFormatValid}
           className="text-blue-700 font-semibold text-sm disabled:text-gray-300"
         >
           {saving ? "Saving..." : "Save"}
@@ -320,8 +322,13 @@ export default function EditBusiness() {
             value={taxRegNumber}
             onChange={(e) => setTaxRegNumber(e.target.value)}
             placeholder="123456789RT0001"
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-600 mb-3 min-w-0"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-600 mb-1 min-w-0"
           />
+          {!gstFormatValid ? (
+            <p className="text-red-500 text-xs mb-3">Use 9 digits, then RT, then 4 digits (for example 123456789RT0001).</p>
+          ) : (
+            <p className="text-xs text-gray-400 mb-3">Optional. Printed on your invoices and estimates.</p>
+          )}
         </>
       )}
 
@@ -436,7 +443,7 @@ export default function EditBusiness() {
 
       <button
         onClick={handleSave}
-        disabled={saving || !bnFormatValid}
+        disabled={saving || !bnFormatValid || !gstFormatValid}
         className="w-full mb-8 mt-2 btn-glass btn-glass-primary"
       >
         {saving ? "Saving..." : "Save"}
