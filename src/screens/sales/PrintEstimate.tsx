@@ -20,7 +20,16 @@ const CANADA_TAX_RATES: Record<string, { label: string; rate: number }> = {
   Nunavut: { label: "GST 5%", rate: 5 },
 }
 
-export default function PrintEstimate() {
+export type PrintEstimateData = {
+  document: any
+  customer: any
+  business: any
+  items: any[]
+  paidTotal?: number
+}
+
+// Pass `data` to render a document that was already fetched (the public view page).
+export default function PrintEstimate({ data }: { data?: PrintEstimateData } = {}) {
   const { id } = useParams<{ id: string }>()
   const [estimate, setEstimate] = useState<any>(null)
   const [customer, setCustomer] = useState<any>(null)
@@ -28,8 +37,15 @@ export default function PrintEstimate() {
   const [items, setItems] = useState<any[]>([])
 
   useEffect(() => {
+    if (data) {
+      setEstimate(data.document)
+      setCustomer(data.customer)
+      setBusiness(data.business)
+      setItems(data.items)
+      return
+    }
     load()
-  }, [id])
+  }, [id, data])
 
   async function load() {
     if (!id) return

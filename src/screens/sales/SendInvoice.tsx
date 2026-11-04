@@ -10,6 +10,7 @@ export default function SendInvoice() {
   const [customerName, setCustomerName] = useState("")
   const [marking, setMarking] = useState(false)
   const [markError, setMarkError] = useState<string | null>(null)
+  const [emailing, setEmailing] = useState(false)
 
   useEffect(() => {
     load()
@@ -31,6 +32,39 @@ export default function SendInvoice() {
 
   function handleDownloadPdf() {
     window.open(`/invoices/${id}/print`, "_blank")
+  }
+
+  async function handleEmailCustomer() {
+    if (!id || emailing) return
+    setEmailing(true)
+    setMarkError(null)
+    try {
+      const { data: sessionData } = await supabase.auth.getSession()
+      const accessToken = sessionData.session?.access_token
+      if (!accessToken) {
+        setMarkError("You must be signed in to send.")
+        return
+      }
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-document`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ type: "invoice", id }),
+      })
+      const result = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setMarkError(result.error || "The email could not be sent. Please try again.")
+        return
+      }
+      navigate(`/invoices/${id}`)
+    } catch {
+      setMarkError("The email could not be sent. Check your connection and try again.")
+    } finally {
+      setEmailing(false)
+    }
   }
 
   function handleLaunchEmail() {
@@ -89,13 +123,27 @@ export default function SendInvoice() {
       </button>
 
       <button
+        onClick={handleEmailCustomer}
+        disabled={!customerEmail || emailing}
+        className="w-full flex items-center gap-3 border border-blue-200 bg-blue-50/40 rounded-lg p-3 mb-2.5 text-left disabled:opacity-50"
+      >
+        <span className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center text-base">&#9993;</span>
+        <span>
+          <span className="block text-sm font-semibold text-gray-900">{emailing ? "Sending..." : "Email to customer"}</span>
+          <span className="block text-xs text-gray-500">
+            {customerEmail ? `Sends a link to ${customerEmail}. Replies come to you.` : "Add an email to this customer first"}
+          </span>
+        </span>
+      </button>
+
+      <button
         onClick={handleLaunchEmail}
         disabled={!customerEmail}
         className="w-full flex items-center gap-3 border border-gray-200 rounded-lg p-3 mb-2.5 text-left disabled:opacity-50"
       >
         <span className="w-9 h-9 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-base">&#9993;</span>
         <span>
-          <span className="block text-sm font-semibold text-gray-900">Launch email</span>
+          <span className="block text-sm font-semibold text-gray-900">Open in my email app</span>
           <span className="block text-xs text-gray-500">
             {customerEmail ? "Opens your email app, ready to send" : "Add an email to this customer first"}
           </span>

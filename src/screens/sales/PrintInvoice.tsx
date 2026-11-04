@@ -20,7 +20,16 @@ const CANADA_TAX_RATES: Record<string, { label: string; rate: number }> = {
   Nunavut: { label: "GST 5%", rate: 5 },
 }
 
-export default function PrintInvoice() {
+export type PrintInvoiceData = {
+  document: any
+  customer: any
+  business: any
+  items: any[]
+  paidTotal?: number
+}
+
+// Pass `data` to render a document that was already fetched (the public view page).
+export default function PrintInvoice({ data }: { data?: PrintInvoiceData } = {}) {
   const { id } = useParams<{ id: string }>()
   const [invoice, setInvoice] = useState<any>(null)
   const [customer, setCustomer] = useState<any>(null)
@@ -28,8 +37,16 @@ export default function PrintInvoice() {
   const [items, setItems] = useState<any[]>([])
   const [paidTotal, setPaidTotal] = useState(0)
   useEffect(() => {
+    if (data) {
+      setInvoice(data.document)
+      setCustomer(data.customer)
+      setBusiness(data.business)
+      setItems(data.items)
+      setPaidTotal(data.paidTotal || 0)
+      return
+    }
     load()
-  }, [id])
+  }, [id, data])
   async function load() {
     if (!id) return
     const { data: inv } = await supabase.from("invoices").select("*, customers(*)").eq("id", id).maybeSingle()

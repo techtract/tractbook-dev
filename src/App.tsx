@@ -48,6 +48,7 @@ import SendEstimate from "./screens/sales/SendEstimate";
 import PrintEstimate from "./screens/sales/PrintEstimate";
 import RecordPayment from "./screens/sales/RecordPayment";
 import ReceivePayment from "./screens/sales/ReceivePayment";
+import PublicDocument from "./screens/public/PublicDocument";
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/view/:type/:token" element={<PublicDocument />} />
       <Route path="/verify-2fa" element={<Verify2FA />} />
 
       {/* Auth-only â€” onboarding flow, reachable BEFORE a business exists */}

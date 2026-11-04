@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { StepCard, StepTitle, UpgradeNote, BackArrow, MoreButton, btnPrimary, btnSoft, btnOutline, btnBig } from "../../components/sales/StepCard"
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
+import { generateNextInvoiceNumber } from "./CreateInvoice"
 
 interface LineItemRow {
   item_name: string
@@ -148,13 +149,17 @@ export default function EstimateDetail() {
   async function handleConvertToInvoice() {
     if (!id || !estimate || converting || convertedInvoice) return
     setConverting(true)
+    setError(null)
+
+    // A fresh number, never derived from the estimate number (EST-0008 -> INV-0008 can already exist).
+    const invoiceNumber = await generateNextInvoiceNumber(estimate.business_id)
 
     const { data: invoice, error: invError } = await supabase
       .from("invoices")
       .insert({
         business_id: estimate.business_id,
         customer_id: estimate.customer_id,
-        invoice_number: estimate.estimate_number.replace("EST", "INV"),
+        invoice_number: invoiceNumber,
         summary: estimate.summary,
         status: "draft",
         invoice_date: new Date().toISOString().slice(0, 10),
@@ -194,7 +199,7 @@ export default function EstimateDetail() {
     await logActivity("Converted", `Converted to Invoice ${invoice.invoice_number}`)
 
     setConverting(false)
-    navigate("/coming-soon/invoices")
+    navigate(`/invoices/${invoice.id}`)
   }
 
   async function handleDelete() {
