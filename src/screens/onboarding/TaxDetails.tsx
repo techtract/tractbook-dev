@@ -1,6 +1,9 @@
 import { useState } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import StepProgress from "./StepProgress"
+import SelectField from "../../components/ui/SelectField"
+import { useOnboardingDraft } from "../../hooks/useOnboardingDraft"
+import { DEFAULT_COUNTRY } from "../../lib/onboardingDraft"
 
 const CANADIAN_PROVINCES = [
   "Ontario", "Quebec", "British Columbia", "Alberta", "Manitoba",
@@ -28,18 +31,22 @@ function isValidEIN(value: string): boolean {
 
 export default function TaxDetails() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const priorState = (location.state as Record<string, unknown>) || {}
-  const country = (priorState.country as string) || "US"
+  const [draft, update] = useOnboardingDraft()
+  const country = draft.country || DEFAULT_COUNTRY
   const isCanada = country === "CA"
 
-  const [businessNumber, setBusinessNumber] = useState("")
-  const [noBN, setNoBN] = useState(false)
+  const businessNumber = draft.businessNumber ?? ""
+  const noBN = draft.noBN ?? false
+  const taxRegNumber = draft.taxRegNumber ?? ""
+  const noTaxReg = draft.noTaxReg ?? false
+  const region = draft.region ?? ""
+  const setBusinessNumber = (v: string) => update({ businessNumber: v })
+  const setNoBN = (v: boolean) => update({ noBN: v })
+  const setTaxRegNumber = (v: string) => update({ taxRegNumber: v })
+  const setNoTaxReg = (v: boolean) => update({ noTaxReg: v })
+  const setRegion = (v: string) => update({ region: v })
   const [bnTouched, setBnTouched] = useState(false)
-  const [taxRegNumber, setTaxRegNumber] = useState("")
-  const [noTaxReg, setNoTaxReg] = useState(false)
   const [taxRegTouched, setTaxRegTouched] = useState(false)
-  const [region, setRegion] = useState("")
 
   const bnFormatValid = noBN || (isCanada ? isValidBN(businessNumber) : isValidEIN(businessNumber))
   const taxRegFormatValid = noTaxReg || (isCanada ? isValidHST(taxRegNumber) : taxRegNumber.trim().length > 0)
@@ -57,23 +64,21 @@ export default function TaxDetails() {
   function handleNext(e: React.FormEvent) {
     e.preventDefault()
     if (!canSubmit) return
-    navigate("/industry", {
-      state: { ...priorState, businessNumber, taxRegNumber, region },
-    })
+    navigate("/industry")
   }
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-10 max-w-sm mx-auto">
       <StepProgress current={3} total={6} />
       <h1 className="text-2xl font-bold mb-1">Business &amp; Tax Details</h1>
-      <p className="text-gray-500 text-sm mb-6">Tell us about you and your business</p>
+      <p className="text-gray-500 text-sm mb-6">We use these for your invoices and tax settings.</p>
 
       {isCanada && (
         <div className="bg-brand-success-soft border border-brand-success-line rounded-lg p-3 mb-4 flex items-center justify-between text-sm">
           <span className="text-brand-success-dark">
             Detected: Canada showing Canadian fields (BN, HST, CAD)
           </span>
-          <button type="button" className="text-blue-600 font-medium whitespace-nowrap ml-2">
+          <button type="button" onClick={() => navigate("/business-info")} className="text-blue-600 font-medium whitespace-nowrap ml-2">
             Change country
           </button>
         </div>
@@ -145,16 +150,12 @@ export default function TaxDetails() {
                 <span className="text-red-500">*</span>
                 <span className="text-xs bg-blue-100 text-blue-700 rounded-full px-2 py-0.5">CANADA</span>
               </div>
-              <select
+              <SelectField
                 value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600"
-              >
-                <option value="">Select a province...</option>
-                {CANADIAN_PROVINCES.map((p) => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </select>
+                onChange={setRegion}
+                placeholder="Select a province..."
+                options={CANADIAN_PROVINCES}
+              />
             </div>
           </>
         ) : (
@@ -205,16 +206,12 @@ export default function TaxDetails() {
               <label className="block text-sm font-medium mb-1">
                 State of operation <span className="text-red-500">*</span>
               </label>
-              <select
+              <SelectField
                 value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600"
-              >
-                <option value="">Select a state...</option>
-                {US_STATES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+                onChange={setRegion}
+                placeholder="Select a state..."
+                options={US_STATES}
+              />
             </div>
           </>
         )}

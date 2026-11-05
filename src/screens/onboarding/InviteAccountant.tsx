@@ -1,46 +1,34 @@
 import { useState } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import StepProgress from "./StepProgress"
-
-type InviteChoice = "yes" | "no" | "self" | ""
-
-interface PriorState {
-  firstName?: string
-  lastName?: string
-  businessName?: string
-  yearStarted?: string
-  legalStructure?: string
-  country?: string
-  businessNumber?: string
-  taxRegNumber?: string
-  region?: string
-  industry?: string
-  bookkeeping?: string
-  goal?: string
-  teamSize?: string
-}
+import { useOnboardingDraft } from "../../hooks/useOnboardingDraft"
+import { buildBusinessArgs, clearDraft, isValidEmail } from "../../lib/onboardingDraft"
 
 export default function InviteAccountant() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const priorState = (location.state as PriorState) || {}
+  const [draft, update] = useOnboardingDraft()
 
-  const [choice, setChoice] = useState<InviteChoice>("")
-  const [accountantEmail, setAccountantEmail] = useState("")
-  const [accountantName, setAccountantName] = useState("")
-  const [inviteSent, setInviteSent] = useState(false)
+  const choice = draft.accountantChoice ?? ""
+  const accountantEmail = draft.accountantEmail ?? ""
+  const accountantName = draft.accountantName ?? ""
+  const inviteSaved = draft.inviteSaved ?? false
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [emailError, setEmailError] = useState<string | null>(null)
 
   const canContinue =
     choice === "no" ||
     choice === "self" ||
-    (choice === "yes" && inviteSent)
+    (choice === "yes" && inviteSaved)
 
   function handleSendInvite() {
-    if (!accountantEmail.trim()) return
-    setInviteSent(true)
+    if (!isValidEmail(accountantEmail)) {
+      setEmailError("Enter a valid email address, like accountant@firm.ca")
+      return
+    }
+    setEmailError(null)
+    update({ inviteSaved: true })
   }
 
   async function handleNext(e: React.FormEvent) {
@@ -55,73 +43,34 @@ export default function InviteAccountant() {
       setSaving(false)
       return
     }
-    const userId = userData.user.id
 
-    const { data: business, error: businessError } = await supabase
-      .from("businesses")
-      .insert({
-        name: priorState.businessName || "Untitled Business",
-        legal_structure: priorState.legalStructure || null,
-        year_started: priorState.yearStarted ? Number(priorState.yearStarted) : null,
-        country: priorState.country || "US",
-        industry: priorState.industry || null,
-        business_number: priorState.businessNumber || null,
-        tax_registration_number: priorState.taxRegNumber || null,
-        region: priorState.region || null,
-        bookkeeping_method: priorState.bookkeeping || null,
-        main_goal: priorState.goal || null,
-        team_size: priorState.teamSize || null,
-        created_by: userId,
-      })
-      .select()
-      .single()
-
-    if (businessError || !business) {
-      setError(businessError?.message || "Failed to create business.")
+    // One database call creates the business, makes this person its owner and saves the invite,
+    // all or nothing, so a failure never leaves a half-made business behind.
+    const { data: created, error: createError } = await supabase.rpc(
+      "create_business_with_owner",
+      buildBusinessArgs(draft)
+    )
+    if (createError || !created) {
+      console.error("create_business_with_owner failed", createError)
+      setError("We couldn't finish setting up your business. Please try again.")
       setSaving(false)
       return
     }
-
-    const { error: memberError } = await supabase.from("business_members").insert({
-      business_id: business.id,
-      user_id: userId,
-      role: "owner",
-      status: "active",
-    })
-
-    if (memberError) {
-      setError(memberError.message)
-      setSaving(false)
-      return
-    }
-
-    if (choice === "yes" && accountantEmail.trim()) {
-      const { error: inviteError } = await supabase.from("invites").insert({
-        business_id: business.id,
-        email: accountantEmail.trim(),
-        name: accountantName.trim() || null,
-        role: "accountant",
-        invited_by: userId,
-      })
-      if (inviteError) {
-        setError(inviteError.message)
-        setSaving(false)
-        return
-      }
-    }
+    const result = created as { business_id: string; business_name: string }
 
     // Remember the person's name on their account so it shows on every login, not just this session
-    const fullName = [priorState.firstName, priorState.lastName].filter(Boolean).join(" ").trim()
+    const fullName = [draft.firstName, draft.lastName].filter(Boolean).join(" ").trim()
     if (fullName) {
       await supabase.auth.updateUser({ data: { full_name: fullName } })
     }
 
+    clearDraft()
     setSaving(false)
     navigate("/dashboard", {
       state: {
-        businessId: business.id,
-        businessName: business.name,
-        firstName: priorState.firstName,
+        businessId: result.business_id,
+        businessName: result.business_name,
+        firstName: draft.firstName,
         justCreated: true,
       },
     })
@@ -131,7 +80,7 @@ export default function InviteAccountant() {
     <div className="min-h-screen flex flex-col justify-center px-6 py-10 max-w-sm mx-auto">
       <StepProgress current={6} total={6} />
       <h1 className="text-2xl font-bold mb-1">Invite your Accountant</h1>
-      <p className="text-gray-500 text-sm mb-6">Tell us about you and your business</p>
+      <p className="text-gray-500 text-sm mb-6">Your accountant can review your books without seeing everything.</p>
 
       <div className="bg-brand-success-soft border border-brand-success-line rounded-lg p-3 mb-4 text-sm text-brand-success-dark">
         Your accountant gets their own view - they see compliance, journal entries and CRA status. You see your business growth view. Same data, different lens.
@@ -148,7 +97,7 @@ export default function InviteAccountant() {
               type="radio"
               name="accountant-choice"
               checked={choice === "yes"}
-              onChange={() => setChoice("yes")}
+              onChange={() => update({ accountantChoice: "yes" })}
               className="mt-1"
             />
             <div>
@@ -170,8 +119,8 @@ export default function InviteAccountant() {
                 type="email"
                 value={accountantEmail}
                 onChange={(e) => {
-                  setAccountantEmail(e.target.value)
-                  setInviteSent(false)
+                  update({ accountantEmail: e.target.value, inviteSaved: false })
+                  setEmailError(null)
                 }}
                 placeholder="accountant@firm.ca"
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600"
@@ -184,7 +133,7 @@ export default function InviteAccountant() {
               <input
                 type="text"
                 value={accountantName}
-                onChange={(e) => setAccountantName(e.target.value)}
+                onChange={(e) => update({ accountantName: e.target.value })}
                 placeholder="e.g. Foram Shah"
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600"
               />
@@ -192,13 +141,16 @@ export default function InviteAccountant() {
             <button
               type="button"
               onClick={handleSendInvite}
-              disabled={!accountantEmail.trim()}
+              disabled={!accountantEmail.trim() || inviteSaved}
               className="w-full btn-glass btn-glass-success"
             >
-              Send invite
+              {inviteSaved ? "Invite saved" : "Save invite"}
             </button>
-            {inviteSent && (
-              <p className="text-red-500 text-xs">Invitation queued - will be sent once you finish setup</p>
+            {emailError && <p className="text-red-500 text-xs">{emailError}</p>}
+            {inviteSaved && (
+              <p className="text-brand-success-dark text-xs">
+                Invite saved for {accountantEmail.trim()}. Tap Next to finish setup.
+              </p>
             )}
           </div>
         )}
@@ -213,7 +165,7 @@ export default function InviteAccountant() {
               type="radio"
               name="accountant-choice"
               checked={choice === "no"}
-              onChange={() => setChoice("no")}
+              onChange={() => update({ accountantChoice: "no" })}
               className="mt-1"
             />
             <div>
@@ -233,7 +185,7 @@ export default function InviteAccountant() {
               type="radio"
               name="accountant-choice"
               checked={choice === "self"}
-              onChange={() => setChoice("self")}
+              onChange={() => update({ accountantChoice: "self" })}
               className="mt-1"
             />
             <div>

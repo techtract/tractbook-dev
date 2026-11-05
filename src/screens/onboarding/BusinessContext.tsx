@@ -1,6 +1,7 @@
-import { useState } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import StepProgress from "./StepProgress"
+import OptionChips from "../../components/ui/OptionChips"
+import { useOnboardingDraft } from "../../hooks/useOnboardingDraft"
 
 const BOOKKEEPING_METHODS = [
   "Excel / Googlesheets - manual",
@@ -21,47 +22,37 @@ const TEAM_SIZES = ["Just me", "2 - 5", "6 - 20", "20+"]
 
 export default function BusinessContext() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const priorState = (location.state as Record<string, unknown>) || {}
+  const [draft, update] = useOnboardingDraft()
 
-  const [bookkeeping, setBookkeeping] = useState("")
-  const [goal, setGoal] = useState("")
-  const [teamSize, setTeamSize] = useState("")
+  const bookkeeping = draft.bookkeeping ?? ""
+  const goal = draft.goal ?? ""
+  const teamSize = draft.teamSize ?? ""
 
   const canSubmit = bookkeeping !== "" && goal !== "" && teamSize !== ""
 
   function handleNext(e: React.FormEvent) {
     e.preventDefault()
     if (!canSubmit) return
-    navigate("/invite-accountant", {
-      state: { ...priorState, bookkeeping, goal, teamSize },
-    })
+    navigate("/invite-accountant")
   }
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-10 max-w-sm mx-auto">
       <StepProgress current={5} total={6} />
       <h1 className="text-2xl font-bold mb-1">More About Your Business</h1>
-      <p className="text-gray-500 text-sm mb-6">Tell us about you and your business</p>
+      <p className="text-gray-500 text-sm mb-6">Three quick questions so Klara can tailor Tractbook to you.</p>
 
       <form onSubmit={handleNext} className="space-y-6">
         <div>
           <label className="block text-sm font-medium mb-2">
             How are you managing your books right now?
           </label>
-          <div className="space-y-2">
-            {BOOKKEEPING_METHODS.map((method) => (
-              <label key={method} className="flex items-center gap-2 text-sm text-gray-700">
-                <input
-                  type="radio"
-                  name="bookkeeping"
-                  checked={bookkeeping === method}
-                  onChange={() => setBookkeeping(method)}
-                />
-                {method}
-              </label>
-            ))}
-          </div>
+          <OptionChips
+            label="How you manage your books"
+            options={BOOKKEEPING_METHODS}
+            value={bookkeeping}
+            onChange={(v) => update({ bookkeeping: v })}
+          />
           {bookkeeping && (
             <p className="text-xs bg-brand-success-soft border border-brand-success-line rounded-lg px-3 py-2 mt-2 flex gap-2">
               <span>✨</span>
@@ -74,22 +65,7 @@ export default function BusinessContext() {
           <label className="block text-sm font-medium mb-2">
             What's your main goal with Tractbook?
           </label>
-          <div className="flex flex-wrap gap-2">
-            {GOALS.map((g) => (
-              <button
-                key={g}
-                type="button"
-                onClick={() => setGoal(g)}
-                className={`text-sm rounded-full px-3 py-1.5 border ${
-                  goal === g
-                    ? "bg-blue-700 text-white border-blue-700"
-                    : "bg-white text-gray-700 border-blue-300"
-                }`}
-              >
-                {g}
-              </button>
-            ))}
-          </div>
+          <OptionChips label="Main goal" options={GOALS} value={goal} onChange={(v) => update({ goal: v })} />
           {goal && (
             <p className="text-xs bg-brand-success-soft border border-brand-success-line rounded-lg px-3 py-2 mt-2 flex gap-2">
               <span>✨</span>
@@ -100,22 +76,7 @@ export default function BusinessContext() {
 
         <div>
           <label className="block text-sm font-medium mb-2">How big is your team?</label>
-          <div className="flex gap-2">
-            {TEAM_SIZES.map((size) => (
-              <button
-                key={size}
-                type="button"
-                onClick={() => setTeamSize(size)}
-                className={`text-sm rounded-full px-3 py-1.5 border ${
-                  teamSize === size
-                    ? "bg-blue-700 text-white border-blue-700"
-                    : "bg-white text-gray-700 border-blue-300"
-                }`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
+          <OptionChips label="Team size" options={TEAM_SIZES} value={teamSize} onChange={(v) => update({ teamSize: v })} />
           {teamSize && (
             <p className="text-xs bg-brand-success-soft border border-brand-success-line rounded-lg px-3 py-2 mt-2">
               Determines team collaboration and user seat features.

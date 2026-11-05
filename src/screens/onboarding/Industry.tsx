@@ -1,29 +1,26 @@
-import { useState } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import StepProgress from "./StepProgress"
+import SetupIcon, { type SetupIconName } from "../../components/ui/SetupIcon"
+import { useOnboardingDraft } from "../../hooks/useOnboardingDraft"
 
-const INDUSTRIES = [
-  { key: "construction", label: "Construction & Real Estate", icon: "🏗️" },
-  { key: "retail", label: "Retail & E-commerce", icon: "🛍️" },
-  { key: "professional", label: "Professional Services", icon: "💼" },
-  { key: "health", label: "Health & Wellness", icon: "🩺" },
-  { key: "trades", label: "Trades & Field Service", icon: "🔧" },
-  { key: "other", label: "Other", icon: "◈" },
+const INDUSTRIES: { key: string; label: string; icon: SetupIconName }[] = [
+  { key: "construction", label: "Construction & Real Estate", icon: "construction" },
+  { key: "retail", label: "Retail & E-commerce", icon: "retail" },
+  { key: "professional", label: "Professional Services", icon: "professional" },
+  { key: "health", label: "Health & Wellness", icon: "health" },
+  { key: "trades", label: "Trades & Field Service", icon: "trades" },
+  { key: "other", label: "Other", icon: "other" },
 ]
 
 export default function Industry() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const priorState = (location.state as Record<string, unknown>) || {}
-
-  const [selected, setSelected] = useState<string>("")
+  const [draft, update] = useOnboardingDraft()
+  const selected = draft.industry ?? ""
 
   function handleNext(e: React.FormEvent) {
     e.preventDefault()
     if (!selected) return
-    navigate("/business-context", {
-      state: { ...priorState, industry: selected },
-    })
+    navigate("/business-context")
   }
 
   return (
@@ -37,33 +34,32 @@ export default function Industry() {
       <div className="bg-brand-success-soft border border-brand-success-line rounded-lg p-3 mb-6 flex gap-2 text-sm text-brand-success-dark">
         <span>✨</span>
         <span>
-          Klara will set up your HST rates, invoice templates and workflow automations based on your business type — no manual configurationneeded.
+          Klara will set up your HST rates, invoice templates and workflow automations based on your business type — no manual configuration needed.
         </span>
       </div>
 
       <form onSubmit={handleNext}>
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          {INDUSTRIES.map((ind) => (
-            <button
-              key={ind.key}
-              type="button"
-              onClick={() => setSelected(ind.key)}
-              className={`flex flex-col items-center text-center gap-2 py-4 px-2 rounded-lg border-2 ${
-                selected === ind.key
-                  ? "border-blue-600 bg-blue-50"
-                  : "border-transparent"
-              }`}
-            >
-              <span className="text-3xl">{ind.icon}</span>
-              <span
-                className={`text-sm ${
-                  selected === ind.key ? "font-semibold text-gray-900" : "text-gray-600"
+        <div role="radiogroup" aria-label="Industry" className="grid grid-cols-2 gap-3 mb-8">
+          {INDUSTRIES.map((ind) => {
+            const isSelected = selected === ind.key
+            return (
+              <button
+                key={ind.key}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                onClick={() => update({ industry: ind.key })}
+                className={`flex flex-col items-center text-center gap-2 py-4 px-2 rounded-xl border-2 transition-colors ${
+                  isSelected ? "border-blue-600 bg-blue-50" : "border-gray-200 bg-white"
                 }`}
               >
-                {ind.label}
-              </span>
-            </button>
-          ))}
+                <SetupIcon name={ind.icon} active={isSelected} />
+                <span className={`text-sm ${isSelected ? "font-semibold text-gray-900" : "text-gray-600"}`}>
+                  {ind.label}
+                </span>
+              </button>
+            )
+          })}
         </div>
 
         <div className="flex gap-3">

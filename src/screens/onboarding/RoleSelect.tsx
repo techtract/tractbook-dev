@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import StepProgress from "./StepProgress"
+import SetupIcon from "../../components/ui/SetupIcon"
 
 export default function RoleSelect() {
   const navigate = useNavigate()
@@ -19,7 +20,7 @@ export default function RoleSelect() {
       <div className="space-y-4">
         <div className="border-2 border-blue-600 rounded-xl p-4">
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-blue-600 text-2xl">📊</span>
+            <SetupIcon name="owner" active />
             <span className="font-semibold text-gray-900">Business Owner</span>
           </div>
           <button
@@ -30,28 +31,28 @@ export default function RoleSelect() {
           </button>
         </div>
 
-        <div className="border border-gray-200 rounded-xl p-4 opacity-60">
+        <div className="border border-gray-200 rounded-xl p-4">
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-gray-400 text-2xl">🧾</span>
+            <SetupIcon name="accountant" muted />
             <span className="font-semibold text-gray-500">Accountant</span>
           </div>
           <button
             disabled
-            className="w-full bg-gray-200 text-gray-400 rounded-lg py-3 font-medium cursor-not-allowed"
+            className="w-full bg-gray-100 text-gray-400 rounded-lg py-3 font-medium cursor-not-allowed"
           >
             Continue as Accountant
           </button>
         </div>
 
-        <div className="border border-gray-200 rounded-xl p-4 opacity-60">
+        <div className="border border-gray-200 rounded-xl p-4">
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-gray-400 text-2xl">💼</span>
+            <SetupIcon name="solo" muted />
             <span className="font-semibold text-gray-500">Solo/freelancer</span>
-            <span className="text-xs bg-gray-200 text-gray-500 rounded-full px-2 py-0.5">New</span>
+            <span className="text-xs bg-gray-100 text-gray-500 rounded-full px-2 py-0.5">New</span>
           </div>
           <button
             disabled
-            className="w-full bg-gray-200 text-gray-400 rounded-lg py-3 font-medium cursor-not-allowed"
+            className="w-full bg-gray-100 text-gray-400 rounded-lg py-3 font-medium cursor-not-allowed"
           >
             Coming soon
           </button>

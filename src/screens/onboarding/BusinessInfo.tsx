@@ -1,75 +1,85 @@
-import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import StepProgress from "./StepProgress"
+import SelectField from "../../components/ui/SelectField"
+import { useOnboardingDraft } from "../../hooks/useOnboardingDraft"
+import { DEFAULT_COUNTRY, isValidYear } from "../../lib/onboardingDraft"
 
-const YEARS = Array.from({ length: 40 }, (_, i) => new Date().getFullYear() - i)
-const LEGAL_STRUCTURES = [
-  "Sole Proprietorship",
-  "Partnership",
-  "Corporation",
-  "LLC",
-  "Non-Profit",
+const TITLES = ["Mr.", "Ms.", "Mx.", "Dr."]
+const LEGAL_STRUCTURES = ["Sole Proprietorship", "Partnership", "Corporation", "LLC", "Non-Profit"]
+const COUNTRIES = [
+  { value: "CA", label: "Canada (CAD $)" },
+  { value: "US", label: "United States (USD $)" },
 ]
+const YEARS = Array.from({ length: 40 }, (_, i) => String(new Date().getFullYear() - i))
 
 export default function BusinessInfo() {
   const navigate = useNavigate()
-  const [title, setTitle] = useState("Mr.")
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [businessName, setBusinessName] = useState("")
-  const [yearStarted, setYearStarted] = useState("")
-  const [legalStructure, setLegalStructure] = useState("")
-  const [country, setCountry] = useState("US")
+  const [draft, update] = useOnboardingDraft()
+
+  const title = draft.title ?? "Mr."
+  const firstName = draft.firstName ?? ""
+  const lastName = draft.lastName ?? ""
+  const businessName = draft.businessName ?? ""
+  const yearStarted = draft.yearStarted ?? ""
+  const legalStructure = draft.legalStructure ?? ""
+  const country = draft.country ?? DEFAULT_COUNTRY
+
+  const yearOk = isValidYear(yearStarted)
 
   const canSubmit =
     firstName.trim().length > 0 &&
     businessName.trim().length > 0 &&
-    yearStarted !== "" &&
+    yearOk &&
     legalStructure !== ""
+
+  function chooseCountry(next: string) {
+    if (next === country) return
+    // Tax numbers and province/state differ by country, so start those fresh
+    update({
+      country: next,
+      region: "",
+      businessNumber: "",
+      taxRegNumber: "",
+      noBN: false,
+      noTaxReg: false,
+    })
+  }
 
   function handleNext(e: React.FormEvent) {
     e.preventDefault()
     if (!canSubmit) return
-    navigate("/tax-details", {
-      state: { title, firstName, lastName, businessName, yearStarted, legalStructure, country },
-    })
+    update({ country })
+    navigate("/tax-details")
   }
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-10 max-w-sm mx-auto">
       <StepProgress current={2} total={6} />
-      <h1 className="text-2xl font-bold mb-1">How will you use Tractbook?</h1>
-      <p className="text-gray-500 text-sm mb-6">Tell us about you and your business</p>
+      <h1 className="text-2xl font-bold mb-1">About you and your business</h1>
+      <p className="text-gray-500 text-sm mb-6">A few basics so we can set things up for you.</p>
 
-      <form onSubmit={handleNext} className="space-y-4">
+      <form onSubmit={handleNext} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-sm font-medium mb-2">
             What's your name? <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-2">
-            <select
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="border border-gray-300 rounded-lg px-2 py-3 outline-none w-20"
-            >
-              <option>Mr.</option>
-              <option>Ms.</option>
-              <option>Mx.</option>
-              <option>Dr.</option>
-            </select>
+            <SelectField label="Title" className="w-28 shrink-0" value={title} onChange={(v) => update({ title: v })} options={TITLES} />
             <input
               type="text"
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onChange={(e) => update({ firstName: e.target.value })}
               placeholder="First name"
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600"
+              autoComplete="given-name"
+              className="flex-1 min-w-0 border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600"
             />
           </div>
           <input
             type="text"
             value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={(e) => update({ lastName: e.target.value })}
             placeholder="Last name"
+            autoComplete="family-name"
             className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600 mt-2"
           />
         </div>
@@ -81,63 +91,47 @@ export default function BusinessInfo() {
           <input
             type="text"
             value={businessName}
-            onChange={(e) => setBusinessName(e.target.value)}
+            onChange={(e) => update({ businessName: e.target.value })}
             placeholder="e.g. Acme Consulting Inc."
             className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label htmlFor="year-started" className="block text-sm font-medium mb-1">
             What year did you start your business? <span className="text-red-500">*</span>
           </label>
-          <select
+          <SelectField
+            id="year-started"
             value={yearStarted}
-            onChange={(e) => setYearStarted(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600"
-          >
-            <option value="">Select a year...</option>
-            {YEARS.map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
+            onChange={(v) => update({ yearStarted: v })}
+            placeholder="Select a year..."
+            options={YEARS}
+          />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-sm font-medium mb-2">
             What is the legal structure of your business? <span className="text-red-500">*</span>
           </label>
-          <select
+          <SelectField
+            label="Legal structure"
             value={legalStructure}
-            onChange={(e) => setLegalStructure(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600"
-          >
-            <option value="">Select your business type</option>
-            {LEGAL_STRUCTURES.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
+            onChange={(v) => update({ legalStructure: v })}
+            placeholder="Select your business type"
+            options={LEGAL_STRUCTURES}
+          />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-sm font-medium mb-2">
             Business country <span className="text-red-500">*</span>
           </label>
-          <select
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-blue-600"
-          >
-            <option value="US">USD ($) - U.S. dollar</option>
-            <option value="CA">CAD ($) - Canadian dollar</option>
-          </select>
+          <SelectField label="Business country" value={country} onChange={chooseCountry} options={COUNTRIES} />
+          <p className="text-xs text-gray-500 mt-2">
+            You'll do business in {country === "CA" ? "Canadian" : "U.S."} dollars.
+          </p>
         </div>
-
-        <p className="text-xs text-gray-500">
-          Looks like your business is in the {country === "CA" ? "Canada" : "United States"} and you do business in{" "}
-          {country === "CA" ? "Canadian" : "U.S."} dollars.{" "}
-          <a href="#" className="text-blue-600 underline">Change this.</a>
-        </p>
 
         <div className="flex gap-3 pt-2">
           <button
