@@ -53,6 +53,14 @@ Deno.serve(async (req) => {
     }
 
     const acceptUrl = `${APP_BASE_URL}/accept-invite?token=${invite.token}`
+    const { data: business } = await supabaseAdmin
+      .from("businesses")
+      .select("name")
+      .eq("id", invite.business_id)
+      .maybeSingle()
+    const businessName = business?.name || "a Tractbook workspace"
+    const inviterName = String(userData.user.user_metadata?.full_name || "").trim()
+    const esc = (v: string) => v.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string))
 
     const resendResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -63,12 +71,14 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: FROM_ADDRESS,
         to: invite.email,
-        subject: "You've been invited to Tractbook",
+        subject: `${inviterName || "A business owner"} invited you to review ${businessName} on Tractbook`,
         html: `
-          <p>Hi ${invite.name || ""},</p>
-          <p>You've been invited to join a Tractbook workspace as an <strong>${invite.role}</strong>.</p>
-          <p><a href="${acceptUrl}">Click here to accept the invite and set up your account</a></p>
-          <p>This link expires in 4 hours.</p>
+          <p>Hi ${esc(invite.name || "there")},</p>
+          <p>${esc(inviterName || "A business owner")} invited you to join <strong>${esc(businessName)}</strong> on Tractbook as their <strong>${esc(invite.role)}</strong>.</p>
+          <p>You'll be able to review their invoices, receipts and customers. You won't be able to change anything.</p>
+          <p><a href="${acceptUrl}" style="display:inline-block;background:#0d44da;color:#fff;padding:12px 20px;border-radius:999px;text-decoration:none;font-weight:600">Accept the invite</a></p>
+          <p>Please sign up or sign in with this email address: ${esc(invite.email)}.</p>
+          <p>This link works for 7 days.</p>
         `,
       }),
     })
@@ -83,7 +93,7 @@ Deno.serve(async (req) => {
       .from("invites")
       .update({
         sent_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       })
       .eq("id", invite.id)
 

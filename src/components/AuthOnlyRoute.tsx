@@ -2,6 +2,7 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 import { needsSecondStep } from "../lib/mfa"
+import { getPendingInvite } from "../lib/pendingInvite"
 
 export default function AuthOnlyRoute() {
   const [checking, setChecking] = useState(true)
@@ -39,6 +40,11 @@ export default function AuthOnlyRoute() {
 
   if (secondStep) {
     return <Navigate to="/verify-2fa" replace state={{ from: location.pathname, fromState: location.state }} />
+  }
+
+  // Someone who came from an accountant invite goes straight to joining, not owner setup
+  if (getPendingInvite()) {
+    return <Navigate to="/accept-invite" replace />
   }
 
   return <Outlet />

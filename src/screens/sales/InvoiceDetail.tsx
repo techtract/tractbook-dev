@@ -3,6 +3,7 @@ import { StepCard, StepTitle, UpgradeNote, BackArrow, MoreButton, btnPrimary, bt
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import { invoiceBadge } from "../../lib/documentStatus"
+import { useReadOnly } from "../../hooks/useReadOnly"
 
 interface ActivityRow {
   id: string
@@ -22,6 +23,7 @@ interface PaymentRow {
 export default function InvoiceDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const readOnly = useReadOnly()
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -251,7 +253,7 @@ export default function InvoiceDetail() {
       {showActions && (
         <div className="border border-gray-200 rounded-lg mb-4 divide-y divide-gray-100 text-sm">
           <button onClick={() => navigate(`/invoices/${id}/print`)} className="w-full text-left px-4 py-2.5">Export as PDF / Print</button>
-          {isDraft && payments.length === 0 && (
+          {!readOnly && isDraft && payments.length === 0 && (
             <button
               onClick={handleDelete}
               disabled={deleting}
@@ -260,7 +262,7 @@ export default function InvoiceDetail() {
               {deleting ? "Deleting..." : "Delete draft"}
             </button>
           )}
-          {!isDraft && !isVoid && (
+          {!readOnly && !isDraft && !isVoid && (
             <button
               onClick={() => { setShowVoid(true); setShowActions(false); setActionError(null) }}
               className="w-full text-left px-4 py-2.5 text-red-600"
@@ -285,7 +287,7 @@ export default function InvoiceDetail() {
         </div>
       </div>
 
-      {showVoid && (
+      {showVoid && !readOnly && (
         <div className="border border-red-200 bg-red-50 rounded-lg p-3 mb-4">
           <p className="text-sm font-semibold text-red-700 mb-1">Void this invoice?</p>
           {payments.length > 0 ? (
@@ -346,7 +348,7 @@ export default function InvoiceDetail() {
         <p className="text-xs text-body ml-12 mb-2">
           Created {new Date(invoice.created_at).toLocaleDateString()}
         </p>
-        {isDraft && (
+        {isDraft && !readOnly && (
           <div className="ml-12">
             <button onClick={() => navigate(`/invoices/${id}/edit`)} className={btnOutline}>
               Edit draft
@@ -360,7 +362,7 @@ export default function InvoiceDetail() {
         <p className="text-xs text-body ml-12 mb-2">
           {invoice.sent_at ? `Last sent: ${new Date(invoice.sent_at).toLocaleDateString()}` : "Last sent: Never"}
         </p>
-        <div className="flex gap-2 mt-1">
+        {!readOnly && <div className="flex gap-2 mt-1">
           {!isSent && !isPaid && !isVoid && (
             <button onClick={handleMarkSent} disabled={markingSent} className={`${btnSoft} flex-1`}>
               {markingSent ? "Saving..." : "Mark as sent"}
@@ -371,9 +373,9 @@ export default function InvoiceDetail() {
               Send invoice
             </button>
           )}
-        </div>
+        </div>}
         {actionError && !showVoid && <p className="text-red-500 text-xs mt-2">{actionError}</p>}
-        {!isVoid && <UpgradeNote>Auto-remind every 7 days</UpgradeNote>}
+        {!isVoid && !readOnly && <UpgradeNote>Auto-remind every 7 days</UpgradeNote>}
       </StepCard>
 
       <StepCard>
@@ -392,7 +394,7 @@ export default function InvoiceDetail() {
         )}
       </StepCard>
 
-      {invoice.status !== "paid" && !isVoid && !isDraft && (
+      {!readOnly && invoice.status !== "paid" && !isVoid && !isDraft && (
         <div className="mb-3">
           <button
             onClick={handleGetPaymentLink}
@@ -406,7 +408,7 @@ export default function InvoiceDetail() {
           )}
         </div>
       )}
-      {!isVoid && !isDraft && (
+      {!readOnly && !isVoid && !isDraft && (
         <button
           onClick={() => navigate(`/invoices/${id}/payment`)}
           disabled={isPaid}

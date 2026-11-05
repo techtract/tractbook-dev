@@ -3,6 +3,7 @@ import { StepCard, StepTitle, UpgradeNote, BackArrow, MoreButton, btnPrimary, bt
 import { useNavigate, useParams } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import { generateNextInvoiceNumber } from "./CreateInvoice"
+import { useReadOnly } from "../../hooks/useReadOnly"
 
 interface LineItemRow {
   item_name: string
@@ -34,6 +35,7 @@ interface ConvertedInvoiceRow {
 export default function EstimateDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const readOnly = useReadOnly()
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -249,13 +251,13 @@ export default function EstimateDetail() {
       {showActions && (
         <div className="border border-gray-200 rounded-lg mb-4 divide-y divide-gray-100 text-sm">
           <button onClick={() => window.open(`/estimates/${id}/print`, "_blank")} className="w-full text-left px-4 py-2.5">Export as PDF / Print</button>
-          <button
+          {!readOnly && <button
             onClick={handleDelete}
             disabled={deleting}
             className="w-full text-left px-4 py-2.5 text-red-600"
           >
             {deleting ? "Deleting..." : "Delete"}
-          </button>
+          </button>}
         </div>
       )}
 
@@ -287,7 +289,7 @@ export default function EstimateDetail() {
         <p className="text-xs text-body ml-12 mb-2">
           Created {new Date(estimate.created_at).toLocaleDateString()}
         </p>
-        {!isConverted && (
+        {!isConverted && !readOnly && (
           <div className="ml-12">
             <button onClick={() => navigate(`/estimates/${id}/edit`)} className={btnOutline}>
               Edit draft
@@ -301,16 +303,16 @@ export default function EstimateDetail() {
         <p className="text-xs text-body ml-12 mb-2">
           {estimate.sent_at ? `Last sent: ${new Date(estimate.sent_at).toLocaleDateString()}` : "Last sent: Never"}
         </p>
-        <div className="flex gap-2 mt-1">
+        {!readOnly && <div className="flex gap-2 mt-1">
           <button onClick={handleMarkSent} className={`${btnSoft} flex-1`}>
             Mark as sent
           </button>
           <button onClick={() => navigate(`/estimates/${id}/send`)} className={`${btnPrimary} flex-1`}>
             Send estimate
           </button>
-        </div>
+        </div>}
         {actionError && <p className="text-red-500 text-xs mt-2">{actionError}</p>}
-        <UpgradeNote>Auto-remind every 7 days</UpgradeNote>
+        {!readOnly && <UpgradeNote>Auto-remind every 7 days</UpgradeNote>}
       </StepCard>
 
       <StepCard>
@@ -319,9 +321,11 @@ export default function EstimateDetail() {
           state={payments.length > 0 ? "done" : "pending"}
           title="Payments"
           action={
-            <button onClick={() => navigate(`/estimates/${id}/payment`)} className={btnOutline}>
-              Record payment
-            </button>
+            readOnly ? undefined : (
+              <button onClick={() => navigate(`/estimates/${id}/payment`)} className={btnOutline}>
+                Record payment
+              </button>
+            )
           }
         />
         {payments.length === 0 ? (
@@ -342,7 +346,7 @@ export default function EstimateDetail() {
         <div className="w-full bg-blue-50 border border-blue-200 text-blue-700 rounded-lg py-3 font-medium mb-6 text-center text-sm">
           Converted to Invoice {convertedInvoice?.invoice_number}
         </div>
-      ) : (
+      ) : readOnly ? null : (
         <button
           onClick={handleConvertToInvoice}
           disabled={converting}

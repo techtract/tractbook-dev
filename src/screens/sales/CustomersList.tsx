@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
+import { useReadOnly } from "../../hooks/useReadOnly"
 
 interface Customer {
   id: string
@@ -13,6 +14,7 @@ interface Customer {
 
 export default function CustomersList() {
   const navigate = useNavigate()
+  const readOnly = useReadOnly()
   const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -106,7 +108,7 @@ export default function CustomersList() {
         />
       </div>
 
-      <div className="flex gap-2 mb-5">
+      {!readOnly && <div className="flex gap-2 mb-5">
         <button
           onClick={() => navigate("/coming-soon/import-customers")}
           className="flex-1 btn-glass btn-glass-secondary min-h-11"
@@ -119,7 +121,7 @@ export default function CustomersList() {
         >
           + Add customer
         </button>
-      </div>
+      </div>}
 
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 

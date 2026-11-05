@@ -2,6 +2,7 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 import { needsSecondStep } from "../lib/mfa"
+import { getPendingInvite } from "../lib/pendingInvite"
 
 export default function ProtectedRoute() {
   const [checking, setChecking] = useState(true)
@@ -70,6 +71,7 @@ export default function ProtectedRoute() {
   }
 
   if (!onboarded) {
+    if (getPendingInvite()) return <Navigate to="/accept-invite" replace />
     return <Navigate to="/verify-phone" replace />
   }
 

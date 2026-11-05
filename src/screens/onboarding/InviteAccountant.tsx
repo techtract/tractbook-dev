@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase"
 import StepProgress from "./StepProgress"
 import { useOnboardingDraft } from "../../hooks/useOnboardingDraft"
 import { buildBusinessArgs, clearDraft, isValidEmail } from "../../lib/onboardingDraft"
+import { sendInviteEmail } from "../../lib/sendInvite"
 
 export default function InviteAccountant() {
   const navigate = useNavigate()
@@ -56,13 +57,16 @@ export default function InviteAccountant() {
       setSaving(false)
       return
     }
-    const result = created as { business_id: string; business_name: string }
+    const result = created as { business_id: string; business_name: string; invite_id?: string | null }
 
     // Remember the person's name on their account so it shows on every login, not just this session
     const fullName = [draft.firstName, draft.lastName].filter(Boolean).join(" ").trim()
     if (fullName) {
       await supabase.auth.updateUser({ data: { full_name: fullName } })
     }
+
+    // Email the invite. If this fails the invite is still saved and can be resent from Account.
+    if (result.invite_id) await sendInviteEmail(result.invite_id)
 
     clearDraft()
     setSaving(false)
@@ -144,12 +148,12 @@ export default function InviteAccountant() {
               disabled={!accountantEmail.trim() || inviteSaved}
               className="w-full btn-glass btn-glass-success"
             >
-              {inviteSaved ? "Invite saved" : "Save invite"}
+              {inviteSaved ? "Invite ready" : "Add invite"}
             </button>
             {emailError && <p className="text-red-500 text-xs">{emailError}</p>}
             {inviteSaved && (
               <p className="text-brand-success-dark text-xs">
-                Invite saved for {accountantEmail.trim()}. Tap Next to finish setup.
+                We'll email {accountantEmail.trim()} when you tap Next.
               </p>
             )}
           </div>

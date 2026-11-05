@@ -22,7 +22,9 @@ import TaxDetails from "./screens/onboarding/TaxDetails";
 import Industry from "./screens/onboarding/Industry";
 import BusinessContext from "./screens/onboarding/BusinessContext";
 import InviteAccountant from "./screens/onboarding/InviteAccountant";
-import Dashboard from "./screens/dashboard/Dashboard";
+import DashboardRouter from "./screens/dashboard/DashboardRouter";
+import AcceptInvite from "./screens/invite/AcceptInvite";
+import AccountantGuard from "./components/AccountantGuard";
 import ComingSoon from "./screens/onboarding/ComingSoon";
 import AuthCallback from "./screens/onboarding/AuthCallback";
 import CustomersList from "./screens/sales/CustomersList";
@@ -63,6 +65,7 @@ function App() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/view/:type/:token" element={<PublicDocument />} />
+      <Route path="/accept-invite" element={<AcceptInvite />} />
       <Route path="/verify-2fa" element={<Verify2FA />} />
 
       {/* Auth-only â€” onboarding flow, reachable BEFORE a business exists */}
@@ -80,7 +83,8 @@ function App() {
 
       {/* Protected â€” requires a real logged-in session AND an active business */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+       <Route element={<AccountantGuard />}>
+        <Route path="/dashboard" element={<DashboardRouter />} />
         <Route path="/account" element={<Account />} />
         <Route path="/account/security" element={<Security />} />
         <Route path="/account/about" element={<About />} />
@@ -112,6 +116,7 @@ function App() {
         <Route path="/ocr/scan" element={<ScanReceipt />} />
         <Route path="/ocr/review" element={<ReviewReceipt />} />
         <Route path="/ocr/:id" element={<OCRDocumentDetail />} />
+       </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../../lib/supabase"
 import BottomNav from "../../components/BottomNav"
+import { useReadOnly } from "../../hooks/useReadOnly"
 import { invoiceState, invoiceStatusInfo } from "../../lib/documentStatus"
 
 interface InvoiceRow {
@@ -19,6 +20,7 @@ type Filter = "all" | "draft" | "sent" | "overdue" | "paid"
 
 export default function InvoiceDashboard() {
   const navigate = useNavigate()
+  const readOnly = useReadOnly()
   const [invoices, setInvoices] = useState<InvoiceRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -157,13 +159,15 @@ export default function InvoiceDashboard() {
       <p className="text-xs text-gray-500 mb-3">Invoices at a glance</p>
 
       <div className="flex gap-2 overflow-x-auto mb-4 pb-1">
-        <button
-          onClick={() => navigate("/invoices/new")}
-          className="shrink-0 w-28 border border-dashed border-gray-300 rounded-xl p-3 flex flex-col items-center justify-center gap-1"
-        >
-          <span className="text-blue-700 text-lg font-bold">+</span>
-          <span className="text-[11px] font-semibold text-gray-600 text-center">New invoice</span>
-        </button>
+        {!readOnly && (
+          <button
+            onClick={() => navigate("/invoices/new")}
+            className="shrink-0 w-28 border border-dashed border-gray-300 rounded-xl p-3 flex flex-col items-center justify-center gap-1"
+          >
+            <span className="text-blue-700 text-lg font-bold">+</span>
+            <span className="text-[11px] font-semibold text-gray-600 text-center">New invoice</span>
+          </button>
+        )}
         <div className="shrink-0 w-28 border border-brand-success-line rounded-xl p-3">
           <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">Draft</p>
           <p className="text-sm font-bold">${draftTotal.toFixed(2)}</p>
@@ -198,12 +202,14 @@ export default function InvoiceDashboard() {
         ))}
       </div>
 
-      <button
-        onClick={() => navigate("/invoices/new")}
-        className="w-full mb-5 btn-glass btn-glass-success min-h-11"
-      >
-        + Create invoice
-      </button>
+      {!readOnly && (
+        <button
+          onClick={() => navigate("/invoices/new")}
+          className="w-full mb-5 btn-glass btn-glass-success min-h-11"
+        >
+          + Create invoice
+        </button>
+      )}
 
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
